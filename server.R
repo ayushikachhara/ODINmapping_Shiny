@@ -10,17 +10,17 @@ library(shiny)
 
 # Define server logic 
 server <- function(input,output) {
-  
+  # take data for the selected time only
   subsetData <- reactive({
     new_data <- data[which(data$date_time3 == input$timeRange),]
     return(new_data)
   })
-  
+  #take winddata from the selected time only
   filteredData <- reactive({
     sp.lines.df[sp.lines.df@data$w.date == input$timeRange,]
   })
   
-  
+  # 'static' map definiton
   output$myMap <- renderLeaflet({
     leaflet() %>% addTiles() %>%
       fitBounds(sp.lines.df@bbox[1,1], sp.lines.df@bbox[2,1], sp.lines.df@bbox[1,2], sp.lines.df@bbox[2,2]) %>%
@@ -29,7 +29,7 @@ server <- function(input,output) {
                 values = data$PM2_5)
   })
   
-  
+  # 'user defined' map definiton
   observe({
     leafletProxy('myMap') %>%
       clearGroup('A') %>%
@@ -43,7 +43,4 @@ server <- function(input,output) {
 }
 
 
-# task necessary for 'observer' within 'server' function
-for (i in c(1:max(sp.lines.df@data$id))) {
-  colnames(sp.lines.df@lines[[i]]@Lines[[1]]@coords) <- c("lng","lat")
-}
+
