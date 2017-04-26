@@ -1,6 +1,7 @@
 # User interface definition for the Shiny app
 
 # Load libraries
+
 library(leaflet)
 library(maps)
 library(mapproj)
@@ -22,8 +23,9 @@ source('./load_dust_data.R')
 # Get WIND data
 source('./load_wind_data.R')
 
+# The user interface
 ui <- fluidPage(
-  titlePanel("9th August 2016, Rangiora"),
+  titlePanel("9th August 2016"),
   sidebarLayout(
     sidebarPanel(
       sliderInput("timeRange", label = "Date/Time:",
