@@ -1,8 +1,3 @@
-## whole of August.
-## interpolated surfaces from 10 minute averages of raw data.
-## smoothing upto an hour to look like ECAN data
-## 
-
 library(leaflet)
 library(maps)
 library(mapproj)
@@ -15,7 +10,7 @@ library(raster)
 library(mapview)
 
 
-## for DUST
+## read both the data files for wind and air quality data
 
 data <- readOGR("/Users/sahilbhouraskar/Desktop/forApp/Data/ODIN_9th_Aug_2016.shp")
 data <- spTransform(data, CRS("+proj=longlat +datum=WGS84"))
@@ -26,7 +21,7 @@ data1 <- readOGR("/Users/sahilbhouraskar/Desktop/forApp/Data/CONA_met_9th_Aug_v3
 data1 <- spTransform(data1, CRS("+proj=longlat +datum=WGS84"))
 data1$date_time3 <- as.POSIXct(as.character(data1$date_time2),format = "%Y%m%d%H%M%S")
 
-# for WIND 
+# creating 'arrows' for WIND 
 
 #Starting x and y coordinates
 start.x <- data1$NZTM_E #longitude
@@ -34,19 +29,17 @@ start.y <- data1$NZTM_N #latitude
 
 #Wind variables (speed, direction and date)
 w.speed <- data1$U #wind speed
-w.direction <- data1$dd #wind azimuth angle (degrees)
+w.direction <- data1$dd #wind angle (degrees)
 w.date <- data1$date_time3 #datetime of data collection (yyyy-mm-dd)
 id <- c(1:length(start.x)) #id of sample data
 
 #Dataframe with georeferenced wind data
 df <- data.frame(id=id,start.x=start.x,start.y=start.y,w.speed=w.speed,w.direction=w.direction,w.date=w.date)
 
-#------------------------------
-#Step 2 - Complement `df` with auxiliary coordinates for representing wind as arrowhead lines.
 
-#Line parameters
-line.length <- 1000 #length of polylines representing wind in the map (meters)
-arrow.length <- 300 #lenght of arrowhead leg (meters)
+#Line parameters. I create the arrows than using an arrow image - easier to rotate per minute. 
+line.length <- 500 #length of polylines representing wind in the map
+arrow.length <- 100 #lenght of arrowhead leg (meters)
 arrow.angle <- 120 #angle of arrowhead leg (degrees azimuth)
 
 #Generate data frame with auxiliary coordinates
@@ -54,31 +47,31 @@ end.xy.df <- data.frame(end.x=NA,end.y=NA,end.arrow.x=NA,end.arrow.y=NA)
 
 for (i in c(1:nrow(df))){
   
-  #coordinates of end points for wind lines (the initial points are the ones where data was observed)
-  if (df$w.direction[i] <= 90) {
-    end.x <- df$start.x[i] + (cos((90 - df$w.direction[i]) * 0.0174532925) * line.length)
-  } else if (df$w.direction[i] > 90 & df$w.direction[i] <= 180) {
-    end.x <- df$start.x[i] + (cos((df$w.direction[i] - 90) * 0.0174532925) * line.length)
-  } else if (df$w.direction[i] > 180 & df$w.direction[i] <= 270) {
-    end.x <- df$start.x[i] - (cos((270 - df$w.direction[i]) * 0.0174532925) * line.length)
-  } else {end.x <- df$start.x[i] - (cos((df$w.direction[i] - 270) * 0.0174532925) * line.length)}
+  #both x and y coordinates of end points for wind lines. 0.0175 is the factorI use for degree to radian conversion. 
   
   if (df$w.direction[i] <= 90) {
-    end.y <- df$start.y[i] + (sin((90 - df$w.direction[i]) * 0.0174532925) * line.length)
+    end.x <- df$start.x[i] + (cos((90 - df$w.direction[i]) * 0.0175) * line.length)
   } else if (df$w.direction[i] > 90 & df$w.direction[i] <= 180) {
-    end.y <- df$start.y[i] - (sin((df$w.direction[i] - 90) * 0.0174532925) * line.length)
+    end.x <- df$start.x[i] + (cos((df$w.direction[i] - 90) * 0.0175) * line.length)
   } else if (df$w.direction[i] > 180 & df$w.direction[i] <= 270) {
-    end.y <- df$start.y[i] - (sin((270 - df$w.direction[i]) * 0.0174532925) * line.length)
-  } else {end.y <- df$start.y[i] + (sin((df$w.direction[i] - 270) * 0.0174532925) * line.length)}
+    end.x <- df$start.x[i] - (cos((270 - df$w.direction[i]) * 0.0175) * line.length)
+  } else {end.x <- df$start.x[i] - (cos((df$w.direction[i] - 270) * 0.0175) * line.length)}
   
-  #coordinates of end points for arrowhead leg lines (the initial points are the previous end points)
-  end.arrow.x <- end.x + (cos((df$w.direction[i] + arrow.angle) * 0.0174532925) * arrow.length)
-  end.arrow.y <- end.y - (sin((df$w.direction[i] + arrow.angle) * 0.0174532925) * arrow.length)
+  if (df$w.direction[i] <= 90) {
+    end.y <- df$start.y[i] + (sin((90 - df$w.direction[i]) * 0.0175) * line.length)
+  } else if (df$w.direction[i] > 90 & df$w.direction[i] <= 180) {
+    end.y <- df$start.y[i] - (sin((df$w.direction[i] - 90) * 0.0175) * line.length)
+  } else if (df$w.direction[i] > 180 & df$w.direction[i] <= 270) {
+    end.y <- df$start.y[i] - (sin((270 - df$w.direction[i]) * 0.0175) * line.length)
+  } else {end.y <- df$start.y[i] + (sin((df$w.direction[i] - 270) * 0.0175) * line.length)}
   
+  #coordinates of end points for arrowhead (the initial points are the previous end points)
+  end.arrow.x <- end.x + (cos((df$w.direction[i] + arrow.angle) * 0.0175) * arrow.length)
+  end.arrow.y <- end.y - (sin((df$w.direction[i] + arrow.angle) * 0.0175) * arrow.length)
   end.xy.df <- rbind(end.xy.df,c(end.x,end.y,end.arrow.x,end.arrow.y)) 
 }
 
-end.xy <- end.xy.df[-1,]
+end.xy <- end.xy.df[-1,] #removing the NA row
 df <- data.frame(df,end.xy) #df with observed and auxiliary variables
 
 #Step 3 - Create an object of class `SpatialLinesDataFrame` to use within `leaflet`.
@@ -89,30 +82,30 @@ lines <- data.frame(cbind(lng=c(df$start.x,df$end.x,df$end.arrow.x),
 
 lines.list <- list()
 
+## creating list of 'objects'Lines' 
 for (i in c(1:max(lines$id))){
   line <- subset(lines,lines$id==i)
   line <- as.matrix(line[,c(1:2)])
   line <- Line(line) #object of class 'Line'
-  lines.list[[i]] <- Lines(list(line), ID = i) #list of 'objects'Lines' 
+  lines.list[[i]] <- Lines(list(line), ID = i) 
 }
 
 sp.lines <- SpatialLines(lines.list) #object of class 'SpatialLines'
 
-proj4string(sp.lines) <- CRS("+init=epsg:2193") # define CRS
+proj4string(sp.lines) <- CRS("+init=epsg:2193") # define CRS for NZTM 2000
 
-#Convert CRS to geographic coordinates (http://spatialreference.org/ref/epsg/4326/)
 #for overlaying on OpenStreetMaps tiles in Leaflet
 sp.lines <- spTransform(sp.lines, CRS("+proj=longlat +datum=WGS84"))
 
 
 rownames(df) = df$id
-#Join wind variables (id, speed, direction and date) to object of class 'SpatialLines'
-sp.lines.df <- SpatialLinesDataFrame(sp.lines, df[,c(1,4:6)]) #object of class 'SpatialLinesDataFrame'
-str(sp.lines.df) #inspect object structure
+#Join wind variables (id, speed, direction and date) Lines.
+sp.lines.df <- SpatialLinesDataFrame(sp.lines, df[,c(1,4:6)])  #object of class 'SpatialLinesDataFrame'
 
+##shiny user interface definition:
 
 ui <- fluidPage(
-  titlePanel("9th August 2016, Rangiora"),
+  titlePanel("9th August 2016"),
   sidebarLayout(
     sidebarPanel(
       sliderInput("timeRange", label = "Date/Time:",
@@ -135,17 +128,18 @@ for (i in c(1:max(sp.lines.df@data$id))) {
 }
 
 server <- function(input,output) {
-  
+  ## take data for the selected time only
   subsetData <- reactive({
     new_data <- data[which(data$date_time3 == input$timeRange),]
     return(new_data)
   })
   
+  ##take winddata from the selected time only
   filteredData <- reactive({
     sp.lines.df[sp.lines.df@data$w.date == input$timeRange,]
   })
   
-
+  ## 'static' map definiton
   output$myMap <- renderLeaflet({
     leaflet() %>% addTiles() %>%
       fitBounds(sp.lines.df@bbox[1,1], sp.lines.df@bbox[2,1], sp.lines.df@bbox[1,2], sp.lines.df@bbox[2,2]) %>%
@@ -154,16 +148,16 @@ server <- function(input,output) {
                 values = data$PM2_5)
   })
   
-  
+  ## 'user defined' map definiton
   observe({
     leafletProxy('myMap') %>%
-      clearGroup('A') %>%
+      clearGroup('A') %>% ##clearing the previous timestamp objects
       addCircleMarkers(data = subsetData(), group = 'A',
                        color = ~binpal(PM2_5), radius = ~PM2_5/5,
                        label = ~as.character(PM2_5),
                        stroke = FALSE, 
-                       fillOpacity = 1) %>% clearShapes() %>%
-      addPolylines(data = filteredData(), opacity=1, weigh = 3)
+                       fillOpacity = 1) %>% clearShapes() %>% ##clearing the previous timestamp objects
+      addPolylines(data = filteredData(), opacity=1, weigh = 3) ##adding wind lines
   })
 }
 
