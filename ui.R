@@ -2,42 +2,24 @@
 
 # Load libraries
 
-library(leaflet)
-library(maps)
-library(mapproj)
-library(maptools)
-library(RColorBrewer)
-library(shiny)
-library(rgdal)
-library(sp)
-library(raster)
-library(mapview)
+source('./load_libraries.R')
 
 # Load helper functions
 # Constants and paths
 source('./constants_and_paths.R')
 
-## Get DUST data
-source('./load_dust_data.R')
-
-# Get WIND data
-source('./load_wind_data.R')
+# Load data
+source('./load_data.R')
 
 # The user interface
 ui <- fluidPage(
   titlePanel("9th August 2016"),
-  sidebarLayout(
-    sidebarPanel(
-      sliderInput("timeRange", label = "Date/Time:",
-                  min = min(as.POSIXct(as.character(data$date_time2),
-                                       format = "%Y%m%d%H%M%S")),
-                  max = max(as.POSIXct(as.character(data$date_time2),
-                                       format = "%Y%m%d%H%M%S")),
-                  value = min(as.POSIXct(as.character(data$date_time2),
-                                         format = "%Y%m%d%H%M%S")),
-                  step = 60,animate = TRUE)
-    ),
-    mainPanel(leafletOutput("myMap")
+  sidebarLayout(sidebarPanel(sliderInput("timeRange", label = "Date/Time:",
+                  min = min(data$date_time3),
+                  max = max(data$date_time3),
+                  value = min(data$date_time3),
+                  step = 60,animate = TRUE)),
+                mainPanel(leafletOutput("myMap")
     )
   )
 )

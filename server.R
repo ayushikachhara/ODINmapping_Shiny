@@ -13,17 +13,29 @@ server <- function(input,output) {
   # take data for the selected time only
   subsetData <- reactive({
     new_data <- data[which(data$date_time3 == input$timeRange),]
-    return(new_data)
+#    return(new_data)
+  })
+  subsetRaster <- reactive({
+    idx <- which(date_vec == input$timeRange)
+    return(raster_cat[[idx]])
   })
   #take winddata from the selected time only
   filteredData <- reactive({
     sp.lines.df[sp.lines.df@data$w.date == input$timeRange,]
   })
+  # take krigged data for the selected time only
+  subset_K_Data <- reactive({
+    new_K_data <- krigged_odin_data[which(krigged_odin_data$timestamp == input$timeRange),]
+#    return(new_K_data)
+  })
   
   # 'static' map definiton
   output$myMap <- renderLeaflet({
     leaflet() %>% addTiles() %>%
-      fitBounds(sp.lines.df@bbox[1,1], sp.lines.df@bbox[2,1], sp.lines.df@bbox[1,2], sp.lines.df@bbox[2,2]) %>%
+      fitBounds(sp.lines.df@bbox[1,1],
+                sp.lines.df@bbox[2,1],
+                sp.lines.df@bbox[1,2],
+                sp.lines.df@bbox[2,2]) %>%
       addLegend(position = "bottomleft", 
                 pal = binpal, 
                 values = data$PM2_5)
@@ -32,13 +44,23 @@ server <- function(input,output) {
   # 'user defined' map definiton
   observe({
     leafletProxy('myMap') %>%
-      clearGroup('A') %>%
-      addCircleMarkers(data = subsetData(), group = 'A',
-                       color = ~binpal(PM2_5), radius = ~PM2_5/5,
+      clearGroup('B') %>%
+      addCircleMarkers(data = subsetData(),
+                       group = 'B',
+                       color = ~binpal(PM2_5),
+                       radius = ~PM2_5/5,
                        label = ~as.character(PM2_5),
-                       stroke = FALSE, 
-                       fillOpacity = 1) %>% clearShapes() %>%
-      addPolylines(data = filteredData(), opacity=1, weigh = 3)
+                       stroke = FALSE,
+                       fillOpacity = 0) %>%
+      clearGroup('C') %>%
+      addPolylines(data = filteredData(),
+                   group = 'C',
+                   opacity=1,
+                   weigh = 3) %>%
+      clearGroup('D') %>%
+      addRasterImage(subsetRaster(),
+                       group = 'D',
+                       opacity = 0.5)
   })
 }
 

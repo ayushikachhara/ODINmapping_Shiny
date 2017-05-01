@@ -87,9 +87,11 @@ sp.lines <- spTransform(sp.lines, CRS(latlon_CRS))
 rownames(df) = df$id
 #Join wind variables (id, speed, direction and date) to object of class 'SpatialLines'
 sp.lines.df <- SpatialLinesDataFrame(sp.lines, df[,c(1,4:6)]) #object of class 'SpatialLinesDataFrame'
-str(sp.lines.df) #inspect object structure
+
 
 # task necessary for 'observer' within 'server' function
 for (i in c(1:max(sp.lines.df@data$id))) {
   colnames(sp.lines.df@lines[[i]]@Lines[[1]]@coords) <- c("lng","lat")
 }
+
+save(sp.lines.df,file = './wind_data.RData')
