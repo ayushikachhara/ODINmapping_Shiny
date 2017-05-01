@@ -15,14 +15,15 @@ print("Starting the kriging")
 
 c_data <- subset(data.forkrig,subset = (date_time3==min(data.forkrig$date_time3)))
 #Setting the  prediction grid properties
-min_x <- c_data@bbox[1,1] #minimun x coordinate
-min_y <- c_data@bbox[2,1] #minimun y coordinate
-max_x <- c_data@bbox[1,2] #mximum x coordinate
-max_y <- c_data@bbox[2,2] #maximum y coordinate
+cellsize <- 100 #pixel size in projection units (NZTM, i.e. metres)
+min_x <- c_data@bbox[1,1] - cellsize#minimun x coordinate
+min_y <- c_data@bbox[2,1] - cellsize #minimun y coordinate
+max_x <- c_data@bbox[1,2] + cellsize #mximum x coordinate
+max_y <- c_data@bbox[2,2] + cellsize #maximum y coordinate
 
 x_length <- max_x - min_x #easting amplitude
 y_length <- max_y - min_y #northing amplitude
-cellsize <- 100 #pixel size in projection units (NZTM, i.e. metres)
+
 ncol <- round(x_length/cellsize,0) #number of columns in grid
 nrow <- round(y_length/cellsize,0) #number of rows in grid
 
@@ -55,7 +56,7 @@ for (d_slice in sort(unique(data.forkrig$date_time3))){
     to_rast <- surf$krige_output
     r0 <- rasterFromXYZ(cbind(to_rast@coords,to_rast@data$var1.pred))
     crs(r0) <- NZTM_CRS
-    r <- projectRaster(r0, crs = latlon_CRS)
+    r <- projectRasterForLeaflet(r0)
     raster_cat <- r
     
   }
@@ -66,7 +67,7 @@ for (d_slice in sort(unique(data.forkrig$date_time3))){
     to_rast <- surf$krige_output
     r0 <- rasterFromXYZ(cbind(to_rast@coords,to_rast@data$var1.pred))
     crs(r0) <- NZTM_CRS
-    r <- projectRaster(r0, crs = latlon_CRS)
+    r <- projectRasterForLeaflet(r0)
     raster_cat <- addLayer(raster_cat,r)
   }
   i<-i+1
@@ -86,4 +87,5 @@ krigged_odin_data@proj4string <- CRS(NZTM_CRS)
 krigged_odin_data <- spTransform(krigged_odin_data,CRS(latlon_CRS))
 krigged_odin_data$PM2_5 <- krigged_odin_data$var1.pred
 save(krigged_odin_data,file='./krigged_data.RData')
+
 save(raster_cat,file = './raster_odin.RData')

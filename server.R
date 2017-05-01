@@ -12,8 +12,7 @@ library(shiny)
 server <- function(input,output) {
   # take data for the selected time only
   subsetData <- reactive({
-    new_data <- data[which(data$date_time3 == input$timeRange),]
-#    return(new_data)
+    return(data[which(data$date_time3 == input$timeRange),])
   })
   subsetRaster <- reactive({
     idx <- which(date_vec == input$timeRange)
@@ -21,7 +20,7 @@ server <- function(input,output) {
   })
   #take winddata from the selected time only
   filteredData <- reactive({
-    sp.lines.df[sp.lines.df@data$w.date == input$timeRange,]
+    return(sp.lines.df[sp.lines.df@data$w.date == input$timeRange,])
   })
   # take krigged data for the selected time only
   subset_K_Data <- reactive({
@@ -32,26 +31,28 @@ server <- function(input,output) {
   # 'static' map definiton
   output$myMap <- renderLeaflet({
     leaflet() %>% addTiles() %>%
-      fitBounds(sp.lines.df@bbox[1,1],
-                sp.lines.df@bbox[2,1],
-                sp.lines.df@bbox[1,2],
-                sp.lines.df@bbox[2,2]) %>%
+      fitBounds(data@bbox[1,1],
+                data@bbox[2,1],
+                data@bbox[1,2],
+                data@bbox[2,2]) %>%
       addLegend(position = "bottomleft", 
                 pal = binpal, 
                 values = data$PM2_5)
+      
   })
-  
+
   # 'user defined' map definiton
   observe({
+    
     leafletProxy('myMap') %>%
       clearGroup('B') %>%
       addCircleMarkers(data = subsetData(),
                        group = 'B',
                        color = ~binpal(PM2_5),
-                       radius = ~PM2_5/5,
+                       radius = 5,
                        label = ~as.character(PM2_5),
                        stroke = FALSE,
-                       fillOpacity = 0) %>%
+                       fillOpacity = 0.5) %>%
       clearGroup('C') %>%
       addPolylines(data = filteredData(),
                    group = 'C',
@@ -59,8 +60,10 @@ server <- function(input,output) {
                    weigh = 3) %>%
       clearGroup('D') %>%
       addRasterImage(subsetRaster(),
-                       group = 'D',
-                       opacity = 0.5)
+                     group = 'D',
+                     color = binpal,
+                     opacity = 0.8,
+                     project = FALSE)
   })
 }
 
