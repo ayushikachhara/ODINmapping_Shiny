@@ -10,7 +10,6 @@ source('./constants_and_paths.R')
 
 # Load data
 source('./load_data.R')
-
 # The user interface
 ui <- fluidPage(
   titlePanel("9th August 2016"),

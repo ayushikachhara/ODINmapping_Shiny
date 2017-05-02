@@ -42,8 +42,21 @@ server <- function(input,output) {
   })
 
   # 'user defined' map definiton
+
   observe({
-    
+    if (xi){
+      c_raster <- 'D0'
+      a_raster <- 'D1'
+    }
+    if (!xi) {
+      c_raster <- 'D1'
+      a_raster <- 'D0'
+    }
+    xi <- !xi
+    print(c_raster)
+    print(a_raster)
+    print(xi)
+    c_raster <- 'D0'
     leafletProxy('myMap') %>%
       clearGroup('B') %>%
       addCircleMarkers(data = subsetData(),
@@ -58,12 +71,12 @@ server <- function(input,output) {
                    group = 'C',
                    opacity=1,
                    weigh = 3) %>%
-      clearGroup('D') %>%
       addRasterImage(subsetRaster(),
-                     group = 'D',
+                     group = a_raster,
                      color = binpal,
-                     opacity = 0.8,
-                     project = FALSE)
+                     opacity = 0.1,
+                     project = FALSE) %>%
+      clearGroup(c_raster)
   })
 }
 
