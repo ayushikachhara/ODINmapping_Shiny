@@ -18,7 +18,7 @@ ui <- fluidPage(
                   max = max(data$date_time3),
                   value = min(data$date_time3),
                   step = 60,
-                  animate = animationOptions(interval = 500,
+                  animate = animationOptions(interval = 1000,
                                              loop = FALSE))),
                 mainPanel(leafletOutput("myMap"))
                 )

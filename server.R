@@ -10,6 +10,8 @@ library(shiny)
 
 # Define server logic 
 server <- function(input,output) {
+  # Variable to keep track of which layer to remove
+  v <- reactiveValues(toggle = TRUE)
   # take data for the selected time only
   subsetData <- reactive({
     return(data[which(data$date_time3 == input$timeRange),])
@@ -27,7 +29,7 @@ server <- function(input,output) {
     new_K_data <- krigged_odin_data[which(krigged_odin_data$timestamp == input$timeRange),]
 #    return(new_K_data)
   })
-  
+
   # 'static' map definiton
   output$myMap <- renderLeaflet({
     leaflet() %>% addTiles() %>%
@@ -40,24 +42,31 @@ server <- function(input,output) {
                 values = data$PM2_5)
       
   })
-
+  
+  
   # 'user defined' map definiton
 
   observe({
-    if (xi){
-      c_raster <- 'D0'
-      a_raster <- 'D1'
-    }
-    if (!xi) {
-      c_raster <- 'D1'
-      a_raster <- 'D0'
-    }
-    xi <- !xi
-    print(c_raster)
-    print(a_raster)
-    print(xi)
-    c_raster <- 'D0'
-    leafletProxy('myMap') %>%
+    load(file = 'toggle.RData')
+    if (toggle) {
+      l_rast[1] <- 'D0'
+      l_rast[2] <- 'D1'
+      }
+    else {
+      l_rast[1] <- 'D1'
+      l_rast[2] <- 'D0'
+      }
+    toggle <- !toggle
+    save(toggle,file = './toggle.RData')
+    leafletProxy('myMap',deferUntilFlush = FALSE) %>%
+      addRasterImage(subsetRaster(),
+                     group = l_rast[1],
+                     color = binpal,
+                     opacity = 0.5,
+                     project = FALSE)
+    print(paste('Added to',as.character(l_rast[1])))
+    
+    leafletProxy('myMap',deferUntilFlush = FALSE) %>%
       clearGroup('B') %>%
       addCircleMarkers(data = subsetData(),
                        group = 'B',
@@ -68,17 +77,12 @@ server <- function(input,output) {
                        fillOpacity = 0.5) %>%
       clearGroup('C') %>%
       addPolylines(data = filteredData(),
-                   group = 'C',
+                   group = 'B',
                    opacity=1,
-                   weigh = 3) %>%
-      addRasterImage(subsetRaster(),
-                     group = a_raster,
-                     color = binpal,
-                     opacity = 0.1,
-                     project = FALSE) %>%
-      clearGroup(c_raster)
+                   weigh = 3)
+    
+    print(paste('Cleared from',as.character(l_rast[2])))
+    leafletProxy('myMap',deferUntilFlush = FALSE)  %>%
+      clearGroup(l_rast[2])
   })
 }
-
-
-
