@@ -24,8 +24,8 @@ df <- data.frame(id=id,start.x=start.x,start.y=start.y,w.speed=w.speed,w.directi
 #Step 2 - Complement `df` with auxiliary coordinates for representing wind as arrowhead lines.
 
 #Line parameters
-line.length <- 1000 #length of polylines representing wind in the map (meters)
-arrow.length <- 300 #lenght of arrowhead leg (meters)
+line.length <- 500 #length of polylines representing wind in the map (meters)
+arrow.length <- 200 #lenght of arrowhead leg (meters)
 arrow.angle <- 120 #angle of arrowhead leg (degrees azimuth)
 
 #Generate data frame with auxiliary coordinates
