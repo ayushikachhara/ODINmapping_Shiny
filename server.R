@@ -65,7 +65,19 @@ server <- function(input,output) {
                      opacity = 0.8,
                      project = FALSE)
   })
+  
+  output$myTable <- renderTable({
+    
+    cbind.data.frame(ODIN = subsetData()$ODIN, 
+          Date = subsetData()$date_time2, 
+          PM2.5 = subsetData()$PM2_5)
+    })
+  
+  output$myPlot <- renderPlot({
+    barplot(subsetData()$PM2_5, main = "PM2_5 values", 
+            ylim=c(min(data$PM2_5), max(data$PM2_5)),
+            col = "red", border = "black")
+  })
 }
 
-
-
+shinyApp(ui, server)
