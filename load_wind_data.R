@@ -25,7 +25,7 @@ df <- data.frame(id=id,start.x=start.x,start.y=start.y,w.speed=w.speed,w.directi
 
 #Line parameters
 line.length <- 500 #length of polylines representing wind in the map (meters)
-arrow.length <- 200 #lenght of arrowhead leg (meters)
+arrow.length <- 200 #length of arrowhead leg (meters)
 arrow.angle <- 120 #angle of arrowhead leg (degrees azimuth)
 
 #Generate data frame with auxiliary coordinates
@@ -35,24 +35,24 @@ for (i in c(1:nrow(df))){
   
   #coordinates of end points for wind lines (the initial points are the ones where data was observed)
   if (df$w.direction[i] <= 90) {
-    end.x <- df$start.x[i] + (cos((90 - df$w.direction[i]) * 0.0174532925) * line.length)
+    end.x <- df$start.x[i] + (cos((90 - df$w.direction[i]) * 0.0175) * line.length)
   } else if (df$w.direction[i] > 90 & df$w.direction[i] <= 180) {
-    end.x <- df$start.x[i] + (cos((df$w.direction[i] - 90) * 0.0174532925) * line.length)
+    end.x <- df$start.x[i] + (cos((df$w.direction[i] - 90) * 0.0175) * line.length)
   } else if (df$w.direction[i] > 180 & df$w.direction[i] <= 270) {
-    end.x <- df$start.x[i] - (cos((270 - df$w.direction[i]) * 0.0174532925) * line.length)
-  } else {end.x <- df$start.x[i] - (cos((df$w.direction[i] - 270) * 0.0174532925) * line.length)}
+    end.x <- df$start.x[i] - (cos((270 - df$w.direction[i]) * 0.0175) * line.length)
+  } else {end.x <- df$start.x[i] - (cos((df$w.direction[i] - 270) * 0.0175) * line.length)}
   
   if (df$w.direction[i] <= 90) {
-    end.y <- df$start.y[i] + (sin((90 - df$w.direction[i]) * 0.0174532925) * line.length)
+    end.y <- df$start.y[i] + (sin((90 - df$w.direction[i]) * 0.0175) * line.length)
   } else if (df$w.direction[i] > 90 & df$w.direction[i] <= 180) {
-    end.y <- df$start.y[i] - (sin((df$w.direction[i] - 90) * 0.0174532925) * line.length)
+    end.y <- df$start.y[i] - (sin((df$w.direction[i] - 90) * 0.0175) * line.length)
   } else if (df$w.direction[i] > 180 & df$w.direction[i] <= 270) {
-    end.y <- df$start.y[i] - (sin((270 - df$w.direction[i]) * 0.0174532925) * line.length)
-  } else {end.y <- df$start.y[i] + (sin((df$w.direction[i] - 270) * 0.0174532925) * line.length)}
+    end.y <- df$start.y[i] - (sin((270 - df$w.direction[i]) * 0.0175) * line.length)
+  } else {end.y <- df$start.y[i] + (sin((df$w.direction[i] - 270) * 0.0175) * line.length)}
   
   #coordinates of end points for arrowhead leg lines (the initial points are the previous end points)
-  end.arrow.x <- end.x + (cos((df$w.direction[i] + arrow.angle) * 0.0174532925) * arrow.length)
-  end.arrow.y <- end.y - (sin((df$w.direction[i] + arrow.angle) * 0.0174532925) * arrow.length)
+  end.arrow.x <- end.x + (cos((df$w.direction[i] + arrow.angle) * 0.0175) * arrow.length)
+  end.arrow.y <- end.y - (sin((df$w.direction[i] + arrow.angle) * 0.0175) * arrow.length)
   
   end.xy.df <- rbind(end.xy.df,c(end.x,end.y,end.arrow.x,end.arrow.y)) 
 }

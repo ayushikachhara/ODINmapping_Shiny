@@ -85,4 +85,22 @@ server <- function(input,output) {
     leafletProxy('myMap',deferUntilFlush = FALSE)  %>%
       clearGroup(l_rast[2])
   })
+  
+  output$myTable <- renderTable({
+    
+    cbind.data.frame(ODIN = subsetData()$ODIN, 
+          Date = subsetData()$date_time2, 
+          PM2.5 = subsetData()$PM2_5)
+    })
+  
+  output$myPlot <- renderPlot({
+    barplot(subsetData()$PM2_5, main = "PM2_5 values", 
+            ylim=c(min(data$PM2_5), max(data$PM2_5)),
+            col = "red", border = "black")
+  })
 }
+<<<<<<< HEAD
+=======
+
+shinyApp(ui, server)
+>>>>>>> da54038f11b72b1083046a8f98c0961a1caf8ac2
