@@ -13,14 +13,18 @@ source('./load_data.R')
 
 # The user interface
 ui <- fluidPage(
-  titlePanel("9th August 2016"),
+  titlePanel("Community Observations Network for Air - 2016"),
+  h3("Night of 9 August 2016, Rangiora"),
   sidebarLayout(sidebarPanel(sliderInput("timeRange", label = "Date/Time:",
                   min = min(data$date_time3),
                   max = max(data$date_time3),
                   value = min(data$date_time3),
                   step = 60,
                   animate = animationOptions(interval = 500,
-                                             loop = FALSE))),
-                mainPanel(leafletOutput("myMap"))
+                                             loop = FALSE)), 
+                  tableOutput("myTable")
+                  ),
+                mainPanel(leafletOutput("myMap"), plotOutput("myPlot"))
                 )
+                
   )
