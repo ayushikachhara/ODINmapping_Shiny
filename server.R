@@ -62,7 +62,7 @@ server <- function(input,output) {
       addRasterImage(subsetRaster(),
                      group = l_rast[1],
                      color = binpal,
-                     opacity = 0.5,
+                     opacity = 0.75,
                      project = FALSE)
     print(paste('Added to',as.character(l_rast[1])))
     
@@ -74,33 +74,29 @@ server <- function(input,output) {
                        radius = 5,
                        label = ~as.character(PM2_5),
                        stroke = FALSE,
-                       fillOpacity = 0.5) %>%
-      clearGroup('C') %>%
+                       fillOpacity = 1) %>%
       addPolylines(data = filteredData(),
                    group = 'B',
                    opacity=1,
                    weigh = 3)
-    
     print(paste('Cleared from',as.character(l_rast[2])))
     leafletProxy('myMap',deferUntilFlush = FALSE)  %>%
       clearGroup(l_rast[2])
   })
   
   output$myTable <- renderTable({
-    
-    cbind.data.frame(ODIN = subsetData()$ODIN, 
-          Date = subsetData()$date_time2, 
-          PM2.5 = subsetData()$PM2_5)
-    })
+    as.data.frame(subsetData())[c('ODIN','PM2_5')]},
+    caption = as.character(subsetData()$date_time3[1]))
   
   output$myPlot <- renderPlot({
-    barplot(subsetData()$PM2_5, main = "PM2_5 values", 
+    barplot(subsetData()$PM2_5,
+            main = "ODIN Readings",
+            xlab = "ODIN ID",
+            ylab = "PM2.5 [ug/m3]",
             ylim=c(min(data$PM2_5), max(data$PM2_5)),
-            col = "red", border = "black")
+            names.arg = subsetData()$ODIN,
+            col = "red",
+            border = "black")
   })
 }
-<<<<<<< HEAD
-=======
 
-shinyApp(ui, server)
->>>>>>> da54038f11b72b1083046a8f98c0961a1caf8ac2
