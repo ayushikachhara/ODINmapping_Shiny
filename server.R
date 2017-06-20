@@ -11,92 +11,88 @@ library(shiny)
 # Define server logic 
 server <- function(input,output) {
   # Variable to keep track of which layer to remove
-  v <- reactiveValues(toggle = TRUE)
+  #v <- reactiveValues(toggle = TRUE)
   # take data for the selected time only
   subsetData <- reactive({
-    return(data[which(data$date_time3 == input$timeRange),])
+    return(data[which(data$date_time3 == input$timeRange & !is.na(data$PM2_5)),])
   })
-  subsetRaster <- reactive({
-    idx <- which(date_vec == input$timeRange)
-    return(raster_cat[[idx]])
-  })
+  # subsetRaster <- reactive({
+  #   idx <- which(date_vec == input$timeRange)
+  #   return(raster_cat[[idx]])
+  # })
   #take winddata from the selected time only
   filteredData <- reactive({
     return(sp.lines.df[sp.lines.df@data$w.date == input$timeRange,])
   })
-  # take krigged data for the selected time only
-  subset_K_Data <- reactive({
-    new_K_data <- krigged_odin_data[which(krigged_odin_data$timestamp == input$timeRange),]
-#    return(new_K_data)
-  })
+#   # take krigged data for the selected time only
+#   subset_K_Data <- reactive({
+#     new_K_data <- krigged_odin_data[which(krigged_odin_data$timestamp == input$timeRange),]
+# #    return(new_K_data)
+#   })
 
   # 'static' map definiton
   output$myMap <- renderLeaflet({
     leaflet() %>% addTiles() %>%
-      fitBounds(data@bbox[1,1],
-                data@bbox[2,1],
-                data@bbox[1,2],
-                data@bbox[2,2]) %>%
+      fitBounds(sp.lines.df@bbox[1,1],
+                sp.lines.df@bbox[2,1],
+                sp.lines.df@bbox[1,2],
+                sp.lines.df@bbox[2,2]) %>%
       addLegend(position = "bottomleft", 
                 pal = binpal, 
                 values = data$PM2_5)
       
   })
   
-  
-  # 'user defined' map definiton
-
-  observe({
-    load(file = 'toggle.RData')
-    if (toggle) {
-      l_rast[1] <- 'D0'
-      l_rast[2] <- 'D1'
-      }
-    else {
-      l_rast[1] <- 'D1'
-      l_rast[2] <- 'D0'
-      }
-    toggle <- !toggle
-    save(toggle,file = './toggle.RData')
-    leafletProxy('myMap',deferUntilFlush = FALSE) %>%
-      addRasterImage(subsetRaster(),
-                     group = l_rast[1],
-                     color = binpal,
-                     opacity = 0.75,
-                     project = FALSE)
-    print(paste('Added to',as.character(l_rast[1])))
-    
-    leafletProxy('myMap',deferUntilFlush = FALSE) %>%
-      clearGroup('B') %>%
-      addCircleMarkers(data = subsetData(),
-                       group = 'B',
-                       color = ~binpal(PM2_5),
-                       radius = 5,
-                       label = ~as.character(PM2_5),
-                       stroke = FALSE,
-                       fillOpacity = 1) %>%
-      addPolylines(data = filteredData(),
-                   group = 'B',
-                   opacity=1,
-                   weigh = 3)
-    print(paste('Cleared from',as.character(l_rast[2])))
-    leafletProxy('myMap',deferUntilFlush = FALSE)  %>%
-      clearGroup(l_rast[2])
-  })
-  
-  output$myTable <- renderTable({
-    as.data.frame(subsetData())[c('ODIN','PM2_5')]},
-    caption = as.character(subsetData()$date_time3[1]))
-  
   output$myPlot <- renderPlot({
     barplot(subsetData()$PM2_5,
             main = "ODIN Readings",
             xlab = "ODIN ID",
             ylab = "PM2.5 [ug/m3]",
-            ylim=c(min(data$PM2_5), max(data$PM2_5)),
+            ylim=c(min(data$PM2_5, na.rm = T), max(data$PM2_5, na.rm = T)),
             names.arg = subsetData()$ODIN,
             col = "red",
             border = "black")
   })
+  
+  # 'user defined' map definiton
+
+  #observe({
+    # load(file = 'toggle.RData')
+    # if (toggle) {
+    #   l_rast[1] <- 'D0'
+    #   l_rast[2] <- 'D1'
+    #   }
+    # else {
+    #   l_rast[1] <- 'D1'
+    #   l_rast[2] <- 'D0'
+    #   }
+    # toggle <- !toggle
+    # save(toggle,file = './toggle.RData')
+    # leafletProxy('myMap',deferUntilFlush = FALSE) %>%
+    #   addRasterImage(subsetRaster(),
+    #                  group = l_rast[1],
+    #                  color = binpal,
+    #                  opacity = 0.75,
+    #                  project = FALSE)
+    # print(paste('Added to',as.character(l_rast[1])))
+    observe({
+      leafletProxy('myMap') %>%
+      clearGroup('B') %>%
+      addCircleMarkers(data = subsetData(),
+                       group = 'B',
+                       color = ~binpal(PM2_5),
+                       radius = 5,
+                       label = ~paste("ODIN",as.character(ODIN)),
+                       stroke = FALSE,
+                       fillOpacity = 1) %>%
+      addPolylines(data = filteredData(),
+                   group = 'B',
+                   opacity=1,
+                   weigh = 2)
+    #print(paste('Cleared from',as.character(l_rast[2])))
+    # leafletProxy('myMap',deferUntilFlush = FALSE)  %>%
+    #   clearGroup(l_rast[2])
+  })
+  
 }
 

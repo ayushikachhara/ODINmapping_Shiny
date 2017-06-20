@@ -3,16 +3,17 @@ library(sp)
 
 data1 <- readOGR(paste0(data_folder, wind_file))
 data1 <- spTransform(data1, CRS(latlon_CRS))
-data1$date_time3 <- as.POSIXct(as.character(data1$date_time2),format = "%Y%m%d%H%M%S")
+data1$date_time3 <- as.POSIXct(as.character(data1$DateTime),format = "%d/%m/%y %H:%M")
 
 # Creating arrows for the wind
-
+coords <- as.data.frame(data1@coords)
 #Starting x and y coordinates
-start.x <- data1$NZTM_E #longitude
-start.y <- data1$NZTM_N #latitude
+start.x <-  data1$nztm_E #longitude
+start.y <- data1$nztm_N  #latitude
 
 #Wind variables (speed, direction and date)
-w.speed <- data1$U #wind speed
+
+w.speed <- data1$u #wind speed
 w.direction <- data1$dd #wind azimuth angle (degrees)
 w.date <- data1$date_time3 #datetime of data collection (yyyy-mm-dd)
 id <- c(1:length(start.x)) #id of sample data
@@ -24,9 +25,9 @@ df <- data.frame(id=id,start.x=start.x,start.y=start.y,w.speed=w.speed,w.directi
 #Step 2 - Complement `df` with auxiliary coordinates for representing wind as arrowhead lines.
 
 #Line parameters
-line.length <- 500 #length of polylines representing wind in the map (meters)
-arrow.length <- 200 #length of arrowhead leg (meters)
-arrow.angle <- 120 #angle of arrowhead leg (degrees azimuth)
+line.length <- 1000 #length of polylines representing wind in the map (meters)
+arrow.length <- 850 #length of arrowhead leg (meters) ## note: this length is from the 'end' point. So the length is actually 1000+-800cos/sin120.
+arrow.angle <- 100 #angle of arrowhead leg (degrees azimuth)
 
 #Generate data frame with auxiliary coordinates
 end.xy.df <- data.frame(end.x=NA,end.y=NA,end.arrow.x=NA,end.arrow.y=NA)
@@ -60,10 +61,10 @@ for (i in c(1:nrow(df))){
 end.xy <- end.xy.df[-1,]
 df <- data.frame(df,end.xy) #df with observed and auxiliary variables
 
-#Step 3 - Create an object of class `SpatialLinesDataFrame` to use within `leaflet`.
+## Create an object of class `SpatialLinesDataFrame` to use within `leaflet`
 
-lines <- data.frame(cbind(lng=c(df$start.x,df$end.x,df$end.arrow.x),
-                          lat=c(df$start.y,df$end.y,df$end.arrow.y),
+lines <- data.frame(cbind(lng=c(df$end.arrow.x,df$start.x,df$end.x),
+                          lat=c(df$end.arrow.y,df$start.y,df$end.y),
                           id=c(rep(df$id,3))))
 
 lines.list <- list()
@@ -75,11 +76,9 @@ for (i in c(1:max(lines$id))){
   lines.list[[i]] <- Lines(list(line), ID = i) #list of 'objects'Lines' 
 }
 
-sp.lines <- SpatialLines(lines.list) #object of class 'SpatialLines'
+#object of class 'SpatialLines'
 
-proj4string(sp.lines) <- CRS(NZTM_CRS) # define CRS
-
-#Convert CRS to geographic coordinates (http://spatialreference.org/ref/epsg/4326/)
+sp.lines <- SpatialLines(lines.list, proj4string = CRS(NZTM_CRS)) 
 #for overlaying on OpenStreetMaps tiles in Leaflet
 sp.lines <- spTransform(sp.lines, CRS(latlon_CRS))
 
@@ -93,5 +92,5 @@ sp.lines.df <- SpatialLinesDataFrame(sp.lines, df[,c(1,4:6)]) #object of class '
 for (i in c(1:max(sp.lines.df@data$id))) {
   colnames(sp.lines.df@lines[[i]]@Lines[[1]]@coords) <- c("lng","lat")
 }
-
+#writeOGR(sp.lines.df, ".","Data/windPH2_line", "ESRI Shapefile")
 save(sp.lines.df,file = './wind_data.RData')

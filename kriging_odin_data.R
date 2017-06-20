@@ -5,11 +5,11 @@ source('./load_dust_data.R')
 data.forkrig <- spTransform(data,CRS(NZTM_CRS))
 data.forkrig$ODIN <- NULL
 data.forkrig$date_time <- NULL
-data.forkrig$date_time2 <- NULL
+# data.forkrig$date_time2 <- NULL
 data.forkrig$date <- NULL
-data.forkrig$time <- NULL
-data.forkrig$hr <- NULL
-data.forkrig$min <- NULL
+# data.forkrig$time <- NULL
+# data.forkrig$hr <- NULL
+# data.forkrig$min <- NULL
 
 print("Starting the kriging")
 
@@ -39,6 +39,8 @@ plot(grid)
 
 i <- 0
 j <- 0
+
+data.forkrig <- data.forkrig[!is.na(data.forkrig$PM2_5),]
 
 for (d_slice in sort(unique(data.forkrig$date_time3))){
   c_data <- subset(data.forkrig,subset = (date_time3==d_slice))
