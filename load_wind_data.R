@@ -4,7 +4,7 @@ library(sp)
 data1 <- readOGR(paste0(data_folder, wind_file))
 data1 <- spTransform(data1, CRS(latlon_CRS))
 data1$date_time3 <- as.POSIXct(as.character(data1$DateTime),format = "%d/%m/%y %H:%M")
-
+data1 <- data1[which(as.character(data1$site) != "EWS"),]
 # Creating arrows for the wind
 coords <- as.data.frame(data1@coords)
 #Starting x and y coordinates
