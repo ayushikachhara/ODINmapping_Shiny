@@ -10,37 +10,18 @@ library(shiny)
 
 # Define server logic 
 server <- function(input,output) {
-  # Variable to keep track of which layer to remove
-  #v <- reactiveValues(toggle = TRUE)
-  # take data for the selected time only
   subsetData <- reactive({
     return(data[which(data$date_time3 == input$timeRange & !is.na(data$PM2_5)),])
   })
-  # subsetRaster <- reactive({
-  #   idx <- which(date_vec == input$timeRange)
-  #   return(raster_cat[[idx]])
-  # })
+  
+
   #take winddata from the selected time only
   filteredData <- reactive({
     return(sp.lines.df[sp.lines.df@data$w.date == input$timeRange,])
   })
-#   # take krigged data for the selected time only
-#   subset_K_Data <- reactive({
-#     new_K_data <- krigged_odin_data[which(krigged_odin_data$timestamp == input$timeRange),]
-# #    return(new_K_data)
-#   })
-
-  # 'static' map definiton
-  output$myMap <- renderLeaflet({
-    leaflet() %>% addTiles() %>%
-      fitBounds(sp.lines.df@bbox[1,1],
-                sp.lines.df@bbox[2,1],
-                sp.lines.df@bbox[1,2],
-                sp.lines.df@bbox[2,2]) %>%
-      addLegend(position = "bottomleft", 
-                pal = binpal, 
-                values = data$PM2_5)
-      
+  
+  output$timeRange <- renderText({
+    paste("Animation running from ", input$timeRange, "to 2016-08-31 10:39:00")
   })
   
   output$myPlot <- renderPlot({
@@ -50,31 +31,44 @@ server <- function(input,output) {
             ylab = "PM2.5 [ug/m3]",
             ylim=c(min(data$PM2_5, na.rm = T), max(data$PM2_5, na.rm = T)),
             names.arg = subsetData()$ODIN,
-            col = "red",
+            col = "#2ca25f",
             border = "black")
   })
   
-  # 'user defined' map definiton
+  output$plotly <-renderPlotly({
+    second_axis <- list(
+      tickfont = list(color = "#636363"),
+      overlaying = "y",
+      side = "right",
+      title = "WSpeed",
+      showgrid = F
+    )
+    plot_ly(data_ecan) %>%
+      add_lines(x = ~DateTime, y = ~PM10, name = "PM10", color = I("#2ca25f")) %>%
+      add_lines(x = ~DateTime, y = ~u, name = "WSpeed",  yaxis = "y2", color =I("#2b8cbe")) %>%
+      layout(
+        title = "Ecan_Data", yaxis2 = second_axis,
+        xaxis = list(rangeslider = list(type = "date"), title = ""))
+  })
 
-  #observe({
-    # load(file = 'toggle.RData')
-    # if (toggle) {
-    #   l_rast[1] <- 'D0'
-    #   l_rast[2] <- 'D1'
-    #   }
-    # else {
-    #   l_rast[1] <- 'D1'
-    #   l_rast[2] <- 'D0'
-    #   }
-    # toggle <- !toggle
-    # save(toggle,file = './toggle.RData')
-    # leafletProxy('myMap',deferUntilFlush = FALSE) %>%
-    #   addRasterImage(subsetRaster(),
-    #                  group = l_rast[1],
-    #                  color = binpal,
-    #                  opacity = 0.75,
-    #                  project = FALSE)
-    # print(paste('Added to',as.character(l_rast[1])))
+  output$myMap <- renderLeaflet({
+    leaflet() %>% addTiles(group = "Open Street Map") %>%
+      addProviderTiles(providers$Stamen.Toner, group = "Toner") %>%
+      addProviderTiles(providers$Stamen.TonerLite, group = "Toner Lite") %>%
+      fitBounds(sp.lines.df@bbox[1,1],
+                sp.lines.df@bbox[2,1],
+                sp.lines.df@bbox[1,2],
+                sp.lines.df@bbox[2,2]) %>%
+      addLegend(position = "bottomleft", 
+                pal = binpal, 
+                values = data$PM2_5, na.label = "not active") %>%
+      addLayersControl(baseGroups = c("Open Street Map", "Toner", "Toner Lite"),
+        overlayGroups = c("labels"),
+        options = layersControlOptions(collapsed = FALSE)
+      )
+  })
+  
+  
     observe({
       leafletProxy('myMap') %>%
       clearGroup('B') %>%
@@ -88,10 +82,12 @@ server <- function(input,output) {
       addPolylines(data = filteredData(),
                    group = 'B',
                    opacity=1,
-                   weigh = 2)
-    #print(paste('Cleared from',as.character(l_rast[2])))
-    # leafletProxy('myMap',deferUntilFlush = FALSE)  %>%
-    #   clearGroup(l_rast[2])
+                   weight = ~as.numeric(w.speed)) %>%
+        addLabelOnlyMarkers(data=subsetData(),
+                            group = "labels",
+                            label=~paste("ODIN",as.character(ODIN)),
+                            labelOptions = labelOptions(noHide = T,
+                                                        direction = 'auto'))
   })
   
 }
