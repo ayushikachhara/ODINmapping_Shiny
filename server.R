@@ -18,17 +18,17 @@ server <- function(input,output) {
                 max = max(data$date_time3),
                 value = min(data$date_time3),
                 step = (60*input$step_size),
-                animate = animationOptions(interval = 3000 - (input$speed*500))
+                animate = animationOptions(interval = 3000 - (input$speed*250))
     )
   })
   
   output$speed_value <- renderUI({
-    sliderInput("speed",label = "Speed (increasing order):", min = 1, max = 5, value = 4)
+    sliderInput("speed",label = "Speed (increasing order):", min = 1, max = 10, value = 4)
   })
   
   output$step_size <- renderUI({
     sliderInput("step_size","Step (in minutes- minimum step size is 1 minute):",
-                min = 10, max = 60, value = 10)
+                min = 10, max = 60, value = 1)
   })
   
   subsetData <- reactive({
@@ -104,7 +104,7 @@ server <- function(input,output) {
       addPolylines(data = filteredData(),
                    group = 'B',
                    opacity=1,
-                   weight = ~as.numeric(w.speed)) %>%
+                   weight = 3) %>%
         addLabelOnlyMarkers(data=subsetData(),
                             group = "labels",
                             label=~paste("ODIN",as.character(ODIN)),
