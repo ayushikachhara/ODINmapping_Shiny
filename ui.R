@@ -19,7 +19,7 @@ ui <- pageWithSidebar(
       uiOutput("speed_value"), 
       uiOutput("step_size"), 
       h6(textOutput("selectedtime")),
-      plotOutput("myPlot")
+      plotOutput("myPlot", height = "300px")
       ),
   mainPanel(plotlyOutput("plotly", height = "300px"),
             leafletOutput("myMap", height = "300px")

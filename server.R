@@ -23,7 +23,7 @@ server <- function(input,output) {
   })
   
   output$speed_value <- renderUI({
-    sliderInput("speed",label = "Speed:", min = 1, max = 10, value = 5)
+    sliderInput("speed",label = "Speed (increasing order):", min = 1, max = 10, value = 5)
   })
   
   output$step_size <- renderUI({
