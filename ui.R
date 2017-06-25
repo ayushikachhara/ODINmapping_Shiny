@@ -22,6 +22,7 @@ ui <- pageWithSidebar(
       plotOutput("myPlot", height = "300px")
       ),
   mainPanel(plotlyOutput("plotly", height = "300px"),
-            leafletOutput("myMap", height = "300px")
+            leafletOutput("myMap", height = "300px"),
+            a(href="https://www.niwa.co.nz/atmosphere/research-projects/CommunityObservationNetworksforAir", "Find out more about CONA")
             )
   )
