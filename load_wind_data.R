@@ -25,8 +25,8 @@ df <- data.frame(id=id,start.x=start.x,start.y=start.y,w.speed=w.speed,w.directi
 #Step 2 - Complement `df` with auxiliary coordinates for representing wind as arrowhead lines.
 
 #Line parameters
-line.length <- 1000 #length of polylines representing wind in the map (meters)
-arrow.length <- 850 #length of arrowhead leg (meters) ## note: this length is from the 'end' point. So the length is actually 1000+-800cos/sin120.
+line.length <- 200 #length of polylines representing wind in the map (meters)
+arrow.length <- line.length-100 #length of arrowhead leg (meters) ## note: this length is from the 'end' point. So the length is actually 1000+-800cos/sin120.
 arrow.angle <- 100 #angle of arrowhead leg (degrees azimuth)
 
 #Generate data frame with auxiliary coordinates
@@ -36,26 +36,27 @@ for (i in c(1:nrow(df))){
   
   #coordinates of end points for wind lines (the initial points are the ones where data was observed)
   if (df$w.direction[i] <= 90) {
-    end.x <- df$start.x[i] + (cos((90 - df$w.direction[i]) * 0.0175) * line.length)
+    end.x <- df$start.x[i] + (cos((90 - df$w.direction[i]) * 0.0175) * (line.length+w.speed[i]*line.length))
   } else if (df$w.direction[i] > 90 & df$w.direction[i] <= 180) {
-    end.x <- df$start.x[i] + (cos((df$w.direction[i] - 90) * 0.0175) * line.length)
+    end.x <- df$start.x[i] + (cos((df$w.direction[i] - 90) * 0.0175) * (line.length+w.speed[i]*line.length))
   } else if (df$w.direction[i] > 180 & df$w.direction[i] <= 270) {
-    end.x <- df$start.x[i] - (cos((270 - df$w.direction[i]) * 0.0175) * line.length)
-  } else {end.x <- df$start.x[i] - (cos((df$w.direction[i] - 270) * 0.0175) * line.length)}
+    end.x <- df$start.x[i] - (cos((270 - df$w.direction[i]) * 0.0175) * (line.length+w.speed[i]*line.length))
+  } else {end.x <- df$start.x[i] - (cos((df$w.direction[i] - 270) * 0.0175) * (line.length+w.speed[i]*line.length))}
   
   if (df$w.direction[i] <= 90) {
-    end.y <- df$start.y[i] + (sin((90 - df$w.direction[i]) * 0.0175) * line.length)
+    end.y <- df$start.y[i] + (sin((90 - df$w.direction[i]) * 0.0175) * (line.length+w.speed[i]*line.length))
   } else if (df$w.direction[i] > 90 & df$w.direction[i] <= 180) {
-    end.y <- df$start.y[i] - (sin((df$w.direction[i] - 90) * 0.0175) * line.length)
+    end.y <- df$start.y[i] - (sin((df$w.direction[i] - 90) * 0.0175) * (line.length+w.speed[i]*line.length))
   } else if (df$w.direction[i] > 180 & df$w.direction[i] <= 270) {
-    end.y <- df$start.y[i] - (sin((270 - df$w.direction[i]) * 0.0175) * line.length)
-  } else {end.y <- df$start.y[i] + (sin((df$w.direction[i] - 270) * 0.0175) * line.length)}
+    end.y <- df$start.y[i] - (sin((270 - df$w.direction[i]) * 0.0175) * (line.length+w.speed[i]*line.length))
+  } else {end.y <- df$start.y[i] + (sin((df$w.direction[i] - 270) * 0.0175) * (line.length+w.speed[i]*line.length))}
   
   #coordinates of end points for arrowhead leg lines (the initial points are the previous end points)
-  end.arrow.x <- end.x + (cos((df$w.direction[i] + arrow.angle) * 0.0175) * arrow.length)
-  end.arrow.y <- end.y - (sin((df$w.direction[i] + arrow.angle) * 0.0175) * arrow.length)
+  end.arrow.x <- end.x + (cos((df$w.direction[i] + arrow.angle) * 0.0175) * (arrow.length+w.speed[i]*arrow.length))
+  end.arrow.y <- end.y - (sin((df$w.direction[i] + arrow.angle) * 0.0175) * (arrow.length+w.speed[i]*arrow.length))
   
   end.xy.df <- rbind(end.xy.df,c(end.x,end.y,end.arrow.x,end.arrow.y)) 
+  print(i)
 }
 
 end.xy <- end.xy.df[-1,]
@@ -74,6 +75,7 @@ for (i in c(1:max(lines$id))){
   line <- as.matrix(line[,c(1:2)])
   line <- Line(line) #object of class 'Line'
   lines.list[[i]] <- Lines(list(line), ID = i) #list of 'objects'Lines' 
+  print(i)
 }
 
 #object of class 'SpatialLines'
@@ -91,6 +93,7 @@ sp.lines.df <- SpatialLinesDataFrame(sp.lines, df[,c(1,4:6)]) #object of class '
 # task necessary for 'observer' within 'server' function
 for (i in c(1:max(sp.lines.df@data$id))) {
   colnames(sp.lines.df@lines[[i]]@Lines[[1]]@coords) <- c("lng","lat")
+  print(i)
 }
 #writeOGR(sp.lines.df, ".","Data/windPH2_line", "ESRI Shapefile")
 save(sp.lines.df,file = './wind_data.RData')
