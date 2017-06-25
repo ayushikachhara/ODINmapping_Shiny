@@ -10,6 +10,27 @@ library(shiny)
 
 # Define server logic 
 server <- function(input,output) {
+  
+  output$slider <- renderUI({
+    sliderInput("timeRange", label = "Date/Time:",
+                min = min(data$date_time3),
+                max = max(data$date_time3),
+                value = min(data$date_time3),
+                step = (60*input$step_size),
+                animate = animationOptions(interval = 3000 - (input$speed*250))
+                
+    )
+  })
+  
+  output$speed_value <- renderUI({
+    sliderInput("speed",label = "Speed:", min = 1, max = 10, value = 5)
+  })
+  
+  output$step_size <- renderUI({
+    sliderInput("step_size","Step (in minutes- minimum step size is 1 minute):",
+                min = 10, max = 60, value = 10)
+  })
+  
   subsetData <- reactive({
     return(data[which(data$date_time3 == input$timeRange & !is.na(data$PM2_5)),])
   })
@@ -20,8 +41,8 @@ server <- function(input,output) {
     return(sp.lines.df[sp.lines.df@data$w.date == input$timeRange,])
   })
   
-  output$timeRange <- renderText({
-    paste("Animation running from ", input$timeRange, "to 2016-08-31 10:39:00")
+  output$selectedtime <- renderText({
+    paste("Animation running from ", input$timeRange)
   })
   
   output$myPlot <- renderPlot({

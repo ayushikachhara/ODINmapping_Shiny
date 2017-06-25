@@ -15,16 +15,13 @@ source('./load_data.R')
 ui <- pageWithSidebar(
   headerPanel("Community Observations Network for Air - 2016"),
   sidebarPanel(
-    
-    sliderInput("timeRange", label = "Date/Time:",
-                min = min(data$date_time3),
-                max = max(data$date_time3),
-                value = min(data$date_time3),
-                step = 600,
-                animate = animationOptions(interval = 500,
-                                           loop = FALSE)),
-    h6(textOutput("timeRange")),
-    plotOutput("myPlot")
-    ),
-  mainPanel(plotlyOutput("plotly", height = "300px"),leafletOutput("myMap", height = "300px"))
+      uiOutput("slider"),
+      uiOutput("speed_value"), 
+      uiOutput("step_size"), 
+      h6(textOutput("selectedtime")),
+      plotOutput("myPlot")
+      ),
+  mainPanel(plotlyOutput("plotly", height = "300px"),
+            leafletOutput("myMap", height = "300px")
+            )
   )
