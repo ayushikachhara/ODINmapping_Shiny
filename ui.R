@@ -21,9 +21,9 @@ ui <- pageWithSidebar(
       plotOutput("myPlot", height = "300px")
       ),
   mainPanel(plotlyOutput("plotly", height = "300px"),
+            a(href="https://www.niwa.co.nz/atmosphere/research-projects/CommunityObservationNetworksforAir", "Find out more about CONA"),
             leafletOutput("myMap", height = "300px"),
-            p("The material provided on this website is either owned or licensed by NIWA and 
-              Environment Canterbury and is subject to copyright."),
-            a(href="https://www.niwa.co.nz/atmosphere/research-projects/CommunityObservationNetworksforAir", "Find out more about CONA")
+            h6("The material provided on this website is either owned or licensed by NIWA and 
+              Environment Canterbury and is subject to copyright.")
             )
   )
