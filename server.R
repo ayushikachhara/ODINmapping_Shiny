@@ -10,20 +10,20 @@ library(shiny)
 
 # Define server logic 
 server <- function(input,output) {
-  
+   
   output$slider <- renderUI({
+    
     sliderInput("timeRange", label = "Date/Time:",
                 min = min(data$date_time3),
                 max = max(data$date_time3),
                 value = min(data$date_time3),
                 step = (60*input$step_size),
-                animate = animationOptions(interval = 3000 - (input$speed*250))
-                
+                animate = animationOptions(interval = 3000 - (input$speed*500))
     )
   })
   
   output$speed_value <- renderUI({
-    sliderInput("speed",label = "Speed (increasing order):", min = 1, max = 10, value = 5)
+    sliderInput("speed",label = "Speed (increasing order):", min = 1, max = 5, value = 4)
   })
   
   output$step_size <- renderUI({
@@ -69,7 +69,8 @@ server <- function(input,output) {
       add_lines(x = ~DateTime, y = ~u, name = "WSpeed",  yaxis = "y2", color =I("#2b8cbe")) %>%
       layout(
         title = "Ecan_Data", yaxis2 = second_axis,
-        xaxis = list(rangeslider = list(type = "date"), title = ""))
+        xaxis = list(range = c(input$timeRange,max(data_ecan$DateTime)),
+                     rangeslider = list(type = "date"), title = ""))
   })
 
   output$myMap <- renderLeaflet({
@@ -110,6 +111,5 @@ server <- function(input,output) {
                             labelOptions = labelOptions(noHide = T,
                                                         direction = 'auto'))
   })
-  
 }
 
