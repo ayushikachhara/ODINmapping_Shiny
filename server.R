@@ -21,10 +21,13 @@ server <- function(input,output) {
                 step = (60*input$step_size),
                 animate = animationOptions(interval = 3200 - (input$speed*300),
                                            playButton = tags$img(height = 40,width = 45,
-                                                                 src = "https://png.icons8.com/color/1600/circled-play"),
+                                                                 src = "https://png.icons8.com/color/1600/circled-play", 
+                                                                 tags$p(tags$b("PLAY"))),
                                            pauseButton = tags$img(height = 40, width = 45,
-                                                                  src = "https://cdn2.iconfinder.com/data/icons/perfect-flat-icons-2/512/Pause_button_play_stop_blue.png"))
+                                                                  src = "https://cdn2.iconfinder.com/data/icons/perfect-flat-icons-2/512/Pause_button_play_stop_blue.png",
+                                                                  tags$p(tags$b("PAUSE"))))
                 )
+    
   })
   
   ##animation speed control
