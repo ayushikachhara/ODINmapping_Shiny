@@ -11,10 +11,9 @@ source('./constants_and_paths.R')
 source('./load_data.R')
 
 # The user interface
-ui <- fluidPage(shinythemes::themeSelector(),
+ui <- fluidPage(
   titlePanel("Community Observations Network for Air - 2016"),
   sidebarLayout(
-  #headerPanel("Community Observations Network for Air - 2016"),
   sidebarPanel(id="sidebar",
       uiOutput("slider"),
       uiOutput("speed_value"), 
@@ -24,10 +23,11 @@ ui <- fluidPage(shinythemes::themeSelector(),
       plotOutput("myPlot", height = "300px")
       ),
   mainPanel(plotlyOutput("plotly", height = "300px"),
-            a(href="https://cona-rangiora.blogspot.co.nz/2017/04/is-that-niwa-air-quality-project-still.html", "CONA Blogspot"),
-            leafletOutput("myMap", height = "300px"),
+            a(href="https://cona-rangiora.blogspot.co.nz/", "CONA Blogspot"),
+            leafletOutput("myMap", height = "350px"),
             h6("The material provided on this website is either owned or licensed by NIWA and 
               Environment Canterbury and is subject to copyright.")
             )
-  )
+  ), 
+  shinythemes::themeSelector()
   )

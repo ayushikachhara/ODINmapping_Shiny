@@ -49,12 +49,12 @@ server <- function(input,output) {
                 min = 10, max = 60, value = 1, width = '300px')
   })
   
-  ##dust data
+  ##subsetting dust data
   subsetData <- reactive({
     return(data[which(data$date_time3 == input$timeRange & !is.na(data$PM2_5)),])
   })
   
-  #take winddata from the selected time only
+  #subsetting wind_data
   filteredData <- reactive({
     return(sp.lines.df[sp.lines.df@data$w.date == input$timeRange,])
   })
@@ -77,7 +77,9 @@ server <- function(input,output) {
             border = "black")
   })
   
-  ##output with ecan data
+  ##output with plotly data
+  
+  ##secondary y-axis definition.
   output$plotly <-renderPlotly({
     second_axis <- list(
       tickfont = list(color = "#636363"),
@@ -86,6 +88,8 @@ server <- function(input,output) {
       title = "WSpeed",
       showgrid = F
     )
+    
+    ##creating the plotly line plot.
     plot_ly(data_ecan) %>%
       add_lines(x = ~DateTime, y = ~PM10, name = "PM10", color = I("#F39C12")) %>%
       add_lines(x = ~DateTime, y = ~u, name = "WSpeed",  yaxis = "y2", color =I("#2471A3")) %>%
