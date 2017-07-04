@@ -93,8 +93,8 @@ server <- function(input,output) {
         title = "Ecan_Data", yaxis2 = second_axis,
         xaxis = list(range = c(min(data_ecan$DateTime),max(data_ecan$DateTime)),
                      rangeselector = list(buttons = list(
-                       list(count = 1,label = "1st week",step = "7 days"),
-                       list(count = 2,label = "2nd week",step = "14 days"),
+                       list(count = 7, label = "last week",step = "day", stepmode = "forward"),
+                       list(count = 14,label = "last 2 weeks",step = "day", stepmode = "forward"),
                        list(step = "all"))),
                      rangeslider = list(type = "date"), title = ""))
   })
