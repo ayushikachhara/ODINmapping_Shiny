@@ -24,7 +24,7 @@ ui <- fluidPage(shinythemes::themeSelector(),
       plotOutput("myPlot", height = "300px")
       ),
   mainPanel(plotlyOutput("plotly", height = "300px"),
-            a(href="https://www.niwa.co.nz/atmosphere/research-projects/CommunityObservationNetworksforAir", "Find out more about CONA"),
+            a(href="https://cona-rangiora.blogspot.co.nz/2017/04/is-that-niwa-air-quality-project-still.html", "CONA Blogspot"),
             leafletOutput("myMap", height = "300px"),
             h6("The material provided on this website is either owned or licensed by NIWA and 
               Environment Canterbury and is subject to copyright.")
