@@ -51,7 +51,12 @@ server <- function(input,output) {
   
   ##subsetting dust data
   subsetData <- reactive({
-    return(data[which(data$date_time3 == input$timeRange & !is.na(data$PM2_5)),])
+    x <- data[which(data$date_time3 == "2016-08-12 NZST" & !is.na(data$PM2_5)),]
+    order.x <- c(107,103,104,114,113,102,112,100,101,108,106)
+    x <- x[order(match(x$ODIN,order.x)),]
+    x$ODIN <- as.character(x$ODIN)
+    return(x)
+  
   })
   
   #subsetting wind_data
@@ -61,7 +66,7 @@ server <- function(input,output) {
   
   ###datetime output
   output$selectedtime <- renderText({
-  paste("", input$timeRange)
+       paste("Animation running from:   ", strftime(input$timeRange, "%d-%m-%Y  %H:%M:%S"))
   })
   
   ### barplot
@@ -81,6 +86,15 @@ server <- function(input,output) {
   
   ##secondary y-axis definition.
   output$plotly <-renderPlotly({
+    
+    ##need to modify data_ecan here since .RData when read in, does not 
+    ##remember the Datetime format and notes the time as UTC.
+    
+    data_ecan$DateTime <- as.POSIXct(strptime(as.character(data_ecan$DateTime),
+                        format = "%d/%m/%y %H:%M", tz = "Pacific/Auckland"))
+    
+    data_ecan <- data_ecan[which(data_ecan$DateTime>"2016-08-11 23:59:00"),]
+    ## defining the timezone for plot_ly
     second_axis <- list(
       tickfont = list(color = "#636363"),
       overlaying = "y",
@@ -92,15 +106,17 @@ server <- function(input,output) {
     ##creating the plotly line plot.
     plot_ly(data_ecan) %>%
       add_lines(x = ~DateTime, y = ~PM10, name = "PM10", color = I("#F39C12")) %>%
+      
       add_lines(x = ~DateTime, y = ~u, name = "WSpeed",  yaxis = "y2", color =I("#2471A3")) %>%
       layout(
         title = "Ecan_Data", yaxis2 = second_axis,
-        xaxis = list(range = c(min(data_ecan$DateTime),max(data_ecan$DateTime)),
+        xaxis = list(range = c(input$timeRange,max(data_ecan$DateTime)),
                      rangeselector = list(buttons = list(
                        list(count = 7, label = "last week",step = "day", stepmode = "forward"),
                        list(count = 14,label = "last 2 weeks",step = "day", stepmode = "forward"),
                        list(step = "all"))),
-                     rangeslider = list(type = "date"), title = ""))
+                     rangeslider = list(type = "date"), title = "")) %>% 
+      config(displayModeBar = FALSE)
   })
   
   ## ODIN static map.
@@ -144,4 +160,3 @@ server <- function(input,output) {
                                                         direction = 'auto'))
   })
 }
-

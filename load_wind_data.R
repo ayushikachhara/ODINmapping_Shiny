@@ -25,7 +25,7 @@ df <- data.frame(id=id,start.x=start.x,start.y=start.y,w.speed=w.speed,w.directi
 #Step 2 - Complement `df` with auxiliary coordinates for representing wind as arrowhead lines.
 
 #Line parameters
-line.length <- 300+300*w.speed  #length of polylines representing wind in the map (meters)
+line.length <- 50+300*w.speed  #length of polylines representing wind in the map (meters)
 arrow.length <- 0.2*line.length #length of arrowhead leg (meters) ## note: this length is from the 'end' point. So the length is actually 1000+-800cos/sin120.
 arrow.angle <- 30 #angle of arrowhead leg (degrees azimuth)
 
@@ -65,7 +65,8 @@ for (i in c(1:nrow(df))){
   
   
 
-  end.xy.df <- rbind(end.xy.df,c(end.x,end.y,end.arrow.x1,end.arrow.y1,end.arrow.x2,end.arrow.y2)) 
+  end.xy.df <- rbind(end.xy.df,c(end.x,end.y,end.arrow.x1,
+                                 end.arrow.y1,end.arrow.x2,end.arrow.y2)) 
   
   print(i)
 }
@@ -107,5 +108,5 @@ for (i in c(1:max(sp.lines.df@data$id))) {
   print(i)
 }
 #writeOGR(sp.lines.df, ".","Data/windPH2_line", "ESRI Shapefile")
-save(sp.lines.df,file = './wind_data.RData')
+save(sp.lines.df,file = './wind_data1.RData')
 
