@@ -7,7 +7,7 @@ date_vec <- seq(from = min(data$date_time3), to = max(data$date_time3),by = 60)
 #load('./raster_odin.RData')
 #l_rast <- c('D0','D1')
 # Get WIND data
-load('./wind_data.RData')
+load('./wind_data1.RData')
 
 #Get Ecan data
 load('./ecan_data.RData')
