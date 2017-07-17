@@ -1,0 +1,13 @@
+# Merge Dust Kriged datafiles (raster)
+load('./raster_odin_1.RData')
+full_raster <- raster_cat
+load('./raster_odin_2.RData')
+full_raster <- addLayer(full_raster,raster_cat)
+load('./raster_odin_3.RData')
+full_raster <- addLayer(full_raster,raster_cat)
+load('./raster_odin_4.RData')
+full_raster <- addLayer(full_raster,raster_cat)
+load('./raster_odin_5.RData')
+full_raster <- addLayer(full_raster,raster_cat)
+load('./raster_odin_6.RData')
+full_raster <- addLayer(full_raster,raster_cat)
