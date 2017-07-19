@@ -59,6 +59,12 @@ server <- function(input,output) {
   
   })
   
+  ##subsetting dust data
+  subsetRaster <- reactive({
+    idx <- which(date_vec == input$timeRange)
+    return(full_raster[[idx]])
+  })
+  
   #subsetting wind_data
   filteredData <- reactive({
     return(sp.lines.df[sp.lines.df@data$w.date == input$timeRange,])
@@ -157,6 +163,13 @@ server <- function(input,output) {
                             group = "show labels",
                             label=~paste("ODIN",as.character(ODIN)),
                             labelOptions = labelOptions(noHide = T,
-                                                        direction = 'auto'))
+                                                        direction = 'auto')) %>%
+        addRasterImage(data = subsetRaster(),
+                       group = 'R',
+                       color = binpal,
+                       opacity = 0.75,
+                       project = FALSE)
+      
+
   })
 }
