@@ -104,7 +104,7 @@ server <- function(input,output,session) {
                 data@bbox[2,1],
                 data@bbox[1,2],
                 data@bbox[2,2]) %>%
-      addLegend(position = "bottomleft", 
+      leaflet::addLegend(position = "bottomleft", 
                 pal = binpal, 
                 values = data$PM2_5, na.label = "not active") %>%
       addLayersControl(baseGroups = c("Toner", "Toner Lite", "Open Street Map"),
