@@ -107,6 +107,8 @@ for (i in c(1:max(sp.lines.df@data$id))) {
   colnames(sp.lines.df@lines[[i]]@Lines[[1]]@coords) <- c("lng","lat")
   print(i)
 }
+windtable <- as.data.table(sp.lines.df)
+
 #writeOGR(sp.lines.df, ".","Data/windPH2_line", "ESRI Shapefile")
 save(sp.lines.df,file = './wind_data1.RData')
-
+save(windtable,file = './wind_datatable.RData')
