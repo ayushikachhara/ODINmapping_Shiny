@@ -12,15 +12,25 @@ source('./load_data.R')
 
 # The user interface
 ui <- fluidPage(
+  useShinyjs(),
   titlePanel("Community Observations Network for Air - 2016"),
   sidebarLayout(
-  sidebarPanel(id="sidebar",
+    
+  sidebarPanel(width = 6,id="sidebar", 
+      
       uiOutput("slider"),
-      uiOutput("speed_value"), 
-      uiOutput("step_size"), 
+      
+      radioButtons("speed", tags$b(h4("Animation Speed:")),
+                   list("Slow", "Medium", "Fast"), selected = "Medium", inline = T, width = '300px'),
+      
+      sliderInput("step_size",tags$b(h4("Time Steps (in minutes:)")),
+                  min = 10, max = 60, value = 1, width = '300px'), 
+    
       plotOutput("myPlot", height = "300px")
       ),
-  mainPanel(plotlyOutput("plotly", height = "300px"),
+  
+  mainPanel(width = 6,
+            plotlyOutput("plotly", height = "300px"),
             a(href="https://cona-rangiora.blogspot.co.nz/", tags$b("CONA Blogspot")),
             h4(textOutput("selectedtime")),
             leafletOutput("myMap", height = "350px"),
