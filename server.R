@@ -8,6 +8,7 @@
 #
 library(shiny)
 
+##### define a function to generate slider at each radiobutton input. #######
 sliderType <- function(type, steps) {
   switch(type,
          Slow = sliderInput("timeRange", label = "Date/Time:", width = '600px',
@@ -55,8 +56,9 @@ sliderType <- function(type, steps) {
   }
 
 
-# Define server logic 
+#### Define server logic #######
 server <- function(input,output,session) {
+  ### update sliderinput based on the various other inputs ####
   
   observeEvent(input$speed,{
       val <- input$timeRange 
@@ -68,21 +70,23 @@ server <- function(input,output,session) {
     updateSliderInput(session, "timeRange",value=val)
   })
   
-  ##datetime slider definition.
+  #### datetime slider definition.######
   output$slider <- renderUI({ 
     sliderType(input$speed, input$step_size)
   })
+  
+  ##### subset raster #####
 
   subsetRaster <- reactive({
     req(input$timeRange)
     idx <- which(date_vec == input$timeRange)
-    print(idx)
+    # print(idx)
     projected.raster <- projectRaster(rbrick[[idx]], crs = latlon_CRS)
     return(projected.raster)
   })
   
   
-  ##subsetting dust data
+  ##subsetting dust data ######
   subsetData <- reactive({
     x <- data[which(data$date_time3 == input$timeRange & !is.na(data$PM2_5)),]
     order.x <- c(103,110,107,115,114,104,113,106,102,101,109,112,100,105,108)
@@ -93,14 +97,14 @@ server <- function(input,output,session) {
   })
   
 
-  #subsetting wind_data
+  #subsetting wind_data #####
   filteredData <- reactive({
     return(sp.lines.df[sp.lines.df@data$w.date == input$timeRange,])
   })
   
 ############### OUTPUTS ############################
   
-  ## ODIN static map.
+  ## ODIN static map.#########
   output$myMap <- renderLeaflet({
     
     leaflet() %>%
@@ -123,15 +127,15 @@ server <- function(input,output,session) {
       hideGroup("show labels")
   })
   
-  ## ODIN dynamic map.
+  ## ODIN dynamic map.#####
   
-  ##datetime output:
+  ##datetime output: #####
     observe({
       output$selectedtime <- renderText({
         paste(format(input$timeRange))
       })
       
-      ### barplot
+      ### barplot ######
       output$myPlot <- renderPlot({
         barplot(subsetData()$PM2_5,
                 main = "ODIN Readings",
@@ -144,7 +148,7 @@ server <- function(input,output,session) {
                 border = "black")
       })
       
-      
+      ###### plotly output ####
       output$plotly <-renderPlotly({
         data_ecan <- as.data.frame(data_ecan)
         ##secondary y-axis definition.
@@ -202,8 +206,7 @@ server <- function(input,output,session) {
                             label=~paste("ODIN",as.character(ODIN)),
                             labelOptions = labelOptions(noHide = T,
                                                          direction = 'auto'))
-        # print(rasterdata)
-      # print(class(input$timeRange))
+      
 
   })
 }

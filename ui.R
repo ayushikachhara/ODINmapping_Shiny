@@ -24,7 +24,7 @@ ui <- fluidPage(
                    list("Slow", "Medium", "Fast"), selected = "Medium", inline = T, width = '300px'),
       
       sliderInput("step_size",tags$b(h4("Time Steps (in minutes:)")),
-                  min = 10, max = 60, value = 1, width = '300px'), 
+                  min = 10, max = 60, value = 1, step = 10, width = '300px'), 
     
       plotOutput("myPlot", height = "300px")
       ),
