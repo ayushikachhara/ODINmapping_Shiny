@@ -73,6 +73,13 @@ server <- function(input,output,session) {
     sliderType(input$speed, input$step_size)
   })
 
+  subsetRaster <- reactive({
+    req(input$timeRange)
+    idx <- which(date_vec == input$timeRange)
+    print(idx)
+    projected.raster <- projectRaster(rbrick[[idx]], crs = latlon_CRS)
+    return(projected.raster)
+  })
   
   
   ##subsetting dust data
@@ -97,14 +104,17 @@ server <- function(input,output,session) {
   output$myMap <- renderLeaflet({
     
     leaflet() %>%
-      addProviderTiles(providers$Stamen.Toner, group = "Toner") %>%
-      addTiles(group = "Open Street Map") %>%
-      addProviderTiles(providers$Stamen.TonerLite, group = "Toner Lite") %>%
+      addProviderTiles(providers$Stamen.Toner, group = "Toner",
+                       options = providerTileOptions(opacity = 0.35)) %>%
+      addTiles(group = "Open Street Map", 
+               options = tileOptions(opacity = 0.35)) %>%
+      addProviderTiles(providers$Stamen.TonerLite, group = "Toner Lite",
+                       options = providerTileOptions(opacity = 0.35)) %>%
       fitBounds(data@bbox[1,1],
                 data@bbox[2,1],
                 data@bbox[1,2],
                 data@bbox[2,2]) %>%
-      leaflet::addLegend(position = "bottomleft", 
+      addLegend(position = "bottomleft", 
                 pal = binpal, 
                 values = data$PM2_5, na.label = "not active") %>%
       addLayersControl(baseGroups = c("Toner", "Toner Lite", "Open Street Map"),
@@ -163,12 +173,22 @@ server <- function(input,output,session) {
       })
   
       
-      leafletProxy('myMap', deferUntilFlush = FALSE) %>% 
-      clearGroup('B') %>%
+      leafletProxy('myMap', deferUntilFlush = FALSE) %>% clearTiles() %>%
+        addProviderTiles(providers$Stamen.Toner, group = "Toner",
+                         options = providerTileOptions(opacity = 1)) %>%
+        addTiles(group = "Open Street Map", 
+                 options = tileOptions(opacity = 1)) %>%
+        addProviderTiles(providers$Stamen.TonerLite, group = "Toner Lite",
+                         options = providerTileOptions(opacity = 1)) %>%
+        clearImages() %>% clearGroup('B') %>%
+        addRasterImage(subsetRaster(),
+                       colors = binpal,
+                       project = F,
+                       opacity = 0.75) %>%
         addCircleMarkers(data = subsetData(),
                        group = 'B',
                        color = ~binpal(PM2_5),
-                       radius = 5,
+                       radius = 7,
                        label = ~paste("ODIN",as.character(ODIN)),
                        stroke = FALSE,
                        fillOpacity = 1) %>%
