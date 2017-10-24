@@ -10,7 +10,7 @@ date_vec <- seq(from = min(data$date_time3), to = max(data$date_time3),by = 60)
 
 ## load raster
 load('./raster_odin.RData')
-
+rbrick <- brick(full_raster)
 # Get WIND data
 load('./wind_data1.RData')
 
