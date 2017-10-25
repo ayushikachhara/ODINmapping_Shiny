@@ -1,12 +1,3 @@
-list.of.packages <- c("leaflet","maps","mapproj",
-                      "maptools","RColorBrewer",
-                      "shiny","shinyjs","shinythemes",
-                      "rgdal","sp","raster","mapview",
-                      "automap","dygraqphs","xts","plotly", "lubridate")
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages)
-
-
 library(leaflet)
 library(maps)
 library(mapproj)
