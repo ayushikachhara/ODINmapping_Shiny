@@ -106,7 +106,7 @@ server <- function(input,output,session) {
   
   ## ODIN static map.#########
   output$myMap <- renderLeaflet({
-    
+
     leaflet() %>%
       addProviderTiles(providers$Stamen.Toner, group = "Toner",
                        options = providerTileOptions(opacity = 0.35)) %>%
@@ -129,14 +129,17 @@ server <- function(input,output,session) {
   
   ## ODIN dynamic map.#####
   
-  ##datetime output: #####
+  ### datetime output: #####
     observe({
+      # invalidateLater(5000, session)
       output$selectedtime <- renderText({
+        
         paste(format(input$timeRange))
       })
       
       ### barplot ######
       output$myPlot <- renderPlot({
+       
         barplot(subsetData()$PM2_5,
                 main = "ODIN Readings",
                 xlab = "ODIN ID",
@@ -150,6 +153,7 @@ server <- function(input,output,session) {
       
       ###### plotly output ####
       output$plotly <-renderPlotly({
+      
         data_ecan <- as.data.frame(data_ecan)
         ##secondary y-axis definition.
         second_axis <- list(
@@ -187,14 +191,15 @@ server <- function(input,output,session) {
         clearImages() %>% clearGroup('B') %>%
         addRasterImage(subsetRaster(),
                        colors = binpal,
-                       project = F,
-                       opacity = 0.75) %>%
+                       opacity = 0.70) %>%
         addCircleMarkers(data = subsetData(),
                        group = 'B',
-                       color = ~binpal(PM2_5),
+                       color = "black",
+                       weight = 2,
+                       fillColor = ~binpal(PM2_5),
                        radius = 7,
                        label = ~paste("ODIN",as.character(ODIN)),
-                       stroke = FALSE,
+                       stroke = TRUE,
                        fillOpacity = 1) %>%
         addPolylines(data = filteredData(),
                      group = 'B',
