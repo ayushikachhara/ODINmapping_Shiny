@@ -141,41 +141,37 @@ server <- function(input,output,session) {
   
 ############### OUTPUTS ############################
   
-  ## ODIN static map.#########
-  # output$myMap <- renderLeaflet({
-  #   
-  #   invalidateLater(5000,session)
-  #   leaflet() %>% addTiles() %>%
-  #     fitBounds(data@bbox[1,1],
-  #               data@bbox[2,1],
-  #               data@bbox[1,2],
-  #               data@bbox[2,2]) %>%
-  #     leaflet::addLegend(position = "bottomleft", 
-  #               pal = binpal, 
-  #               values = data$PM2_5, na.label = "not active") %>%
-  #     addLayersControl(baseGroups = c("Toner", "Toner Lite", "Open Street Map"),
-  #       overlayGroups = c("show labels"),
-  #       options = layersControlOptions(collapsed = FALSE)) %>%
-  #     hideGroup("show labels")
-  # })
-  
-  output$myMap <- renderUI({
-    
-    m1 <-mapview(subsetData(),
-                 zcol = "PM2_5", 
-                 col.regions = binpal(5), 
-                 layer.name = "ODIN sites",
-                 label = "ODIN")
-    
-    m2 <- mapview(subsetRaster(), map = m1,
-                  col.regions = binpal(5),
-                  layer.name ="interpolated PM2.5")
-    
-    m3 <- mapview(filteredData(),
-                  layer.name ="Wind Sites",
-                  zcol = "w.speed")
-    sync(m2,m3)
+  # ODIN static map.#########
+  output$myMap <- renderLeaflet({
+    leaflet() %>% 
+      fitBounds(data@bbox[1,1],
+                data@bbox[2,1],
+                data@bbox[1,2],
+                data@bbox[2,2]) %>%
+      leaflet::addLegend(position = "bottomleft",
+                pal = binpal,
+                values = data$PM2_5, na.label = "not active") %>%
+      addLayersControl(baseGroups = c("Toner", "Toner Lite", "Open Street Map"),
+        overlayGroups = c("ODIN_sites","PM2.5(interpolated)","Wind", "show labels"),
+        options = layersControlOptions(collapsed = FALSE)) %>%
+      hideGroup("show labels")
   })
+  
+  # output$myMap <- renderUI({
+  #   
+  #   m1 <-mapview(subsetData(),
+  #                zcol = "PM2_5", 
+  #                col.regions = binpal(50), 
+  #                layer.name = "ODIN sites", legend = T)
+  # 
+  #   m2 <- mapview(subsetRaster(), map = m1,
+  #                 col.regions = binpal(50),
+  #                 layer.name ="interpolated PM2.5")
+  #   
+  #   m3 <- mapview(filteredData(),
+  #                 layer.name ="Wind Sites")
+  #   sync(m2,m3)
+  # })
   ### barplot ######
   output$myPlot <- renderPlot({
     invalidateLater(5000,session)
@@ -216,51 +212,50 @@ server <- function(input,output,session) {
                fillcolor = "black", line = list(color = "black"), opacity = 1,
                x0 = input$timeRange, x1 = input$timeRange, xref = "x",
                y0 = 0, y1 = 140, yref = "y")),
-        title = "Ecan_Data", yaxis2 = second_axis,
+        title = "ECAN_Rangiora Site", yaxis2 = second_axis,
         xaxis = list(range = c(input$timeRange -129600,input$timeRange +129600),
                      rangeslider = list(type = "date"), title = "")) %>%
       config(displayModeBar = FALSE)
   })
+  
+  ### datetime output: #####
   output$selectedtime <- renderText({
     paste(format(input$timeRange))
   })
 
   
-  ## ODIN dynamic map.#####
-  
-  ### datetime output: #####
-  #   observe({
-  #     
-  #     #invalidateLater(2000,session)
-  #     leafletProxy('myMap', deferUntilFlush = FALSE) %>%
-  #       addProviderTiles(providers$Stamen.Toner, group = "Toner",
-  #                        options = providerTileOptions(opacity = 1)) %>%
-  #       addTiles(group = "Open Street Map", 
-  #                options = tileOptions(opacity = 1)) %>%
-  #       addProviderTiles(providers$Stamen.TonerLite, group = "Toner Lite",
-  #                        options = providerTileOptions(opacity = 1)) %>%
-  #       clearGroup('B') %>%
-  #       addRasterImage(subsetRaster(),
-  #                      colors = binpal,
-  #                      opacity = 0.70) %>%
-  #       addCircleMarkers(data = subsetData(),
-  #                      group = 'A',
-  #                      color = "black",
-  #                      weight = 2,
-  #                      fillColor = ~binpal(PM2_5),
-  #                      radius = 7,
-  #                      label = ~paste("ODIN",as.character(ODIN)),
-  #                      stroke = TRUE,
-  #                      fillOpacity = 1) %>%
-  #       addPolylines(data = filteredData(),
-  #                    group = 'B',
-  #                    opacity=1,
-  #                    weight = 3,
-  #                    color = "black") %>%
-  #       addLabelOnlyMarkers(data=subsetData(),
-  #                           group = "show labels",
-  #                           label=~paste("ODIN",as.character(ODIN)),
-  #                           labelOptions = labelOptions(noHide = T,
-  #                                                        direction = 'auto'))
-  # })
+  ## ODIN dynamic map.####
+    observe({
+      leafletProxy('myMap', deferUntilFlush = FALSE) %>%
+        addProviderTiles(providers$Stamen.Toner, group = "Toner",
+                         options = providerTileOptions(opacity = 1)) %>%
+        addTiles(group = "Open Street Map",
+                 options = tileOptions(opacity = 1)) %>%
+        addProviderTiles(providers$Stamen.TonerLite, group = "Toner Lite",
+                         options = providerTileOptions(opacity = 1)) %>%
+        clearGroup('Wind') %>%
+        addRasterImage(subsetRaster(),
+                       group = "PM2.5(interpolated)",
+                       colors = binpal,
+                       opacity = 0.70) %>%
+        addCircleMarkers(data = subsetData(),
+                       group = 'ODIN_sites',
+                       color = "black",
+                       weight = 2,
+                       fillColor = ~binpal(PM2_5),
+                       radius = 7,
+                       label = ~paste("ODIN",as.character(ODIN)),
+                       stroke = TRUE,
+                       fillOpacity = 1) %>%
+        addPolylines(data = filteredData(),
+                     group = 'Wind',
+                     opacity=1,
+                     weight = 3,
+                     color = "black") %>%
+        addLabelOnlyMarkers(data=subsetData(),
+                            group = "show labels",
+                            label=~paste("ODIN",as.character(ODIN)),
+                            labelOptions = labelOptions(noHide = T,
+                                                         direction = 'auto'))
+  })
 }
