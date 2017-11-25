@@ -1,10 +1,12 @@
 name: odinmapping
 title: ODINmapping
+username:
 account: kachharaaayushi
 server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
 appId: 194901
-bundleId: 1043517
+bundleId: 1095404
 url: https://kachharaaayushi.shinyapps.io/odinmapping/
-when: 1508901386.75933
+when: 1511592280.29268
 asMultiple: FALSE
 asStatic: FALSE
