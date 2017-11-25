@@ -7,8 +7,6 @@ all.libraries <- c('leaflet', 'maps','mapproj',
 if(length(new.pkgs <- setdiff(all.libraries, 
                               rownames(installed.packages())))) install.packages(new.pkgs)
 
-
-
 library(leaflet)
 library(maps)
 library(mapproj)
