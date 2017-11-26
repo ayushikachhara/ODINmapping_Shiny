@@ -4,7 +4,7 @@ load('./dust_data.RData')
 data$date_time3 <- with_tz(data$date_time3, "UTC")
 data$date_time3 <- data$date_time3 +43200
 binpal <- colorBin(c("Green","Orange","Red"),c(0,140), 8, 
-                   pretty = TRUE, na.color = "Black")
+                   pretty = TRUE, na.color = "#00000000")
 
 date_vec <- seq(from = min(data$date_time3), to = max(data$date_time3),by = 60)
 
