@@ -226,6 +226,7 @@ server <- function(input,output,session) {
   
   ## ODIN dynamic map.####
     observe({
+     
       leafletProxy('myMap', deferUntilFlush = FALSE) %>%
         addProviderTiles(providers$Stamen.Toner, group = "Toner",
                          options = providerTileOptions(opacity = 1)) %>%
@@ -237,6 +238,7 @@ server <- function(input,output,session) {
         addRasterImage(subsetRaster(),
                        group = "PM2.5(interpolated)",
                        colors = binpal,
+                       project = FALSE,
                        opacity = 0.70) %>%
         addCircleMarkers(data = subsetData(),
                        group = 'ODIN_sites',
