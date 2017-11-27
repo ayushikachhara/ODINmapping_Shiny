@@ -203,7 +203,7 @@ server <- function(input,output,session) {
     )
 
     ## creating the plotly line plot.
-    plot_ly(data_ecan) %>%
+    p <- plot_ly(data_ecan) %>%
       add_lines(x = ~DateTime, y = ~PM10, name = "PM10", color = I("#F39C12")) %>%
       add_lines(x = ~DateTime, y = ~u, name = "WSpeed",  yaxis = "y2", color =I("#2471A3")) %>%
       layout(
@@ -216,6 +216,8 @@ server <- function(input,output,session) {
         xaxis = list(range = c(input$timeRange -129600,input$timeRange +129600),
                      rangeslider = list(type = "date"), title = "")) %>%
       config(displayModeBar = FALSE)
+	p$elementId <- NULL
+	p
   })
   
   ### datetime output: #####
