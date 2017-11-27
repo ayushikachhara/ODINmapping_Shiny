@@ -1,12 +1,3 @@
-all.libraries <- c('leaflet', 'maps','mapproj',
-                   'maptools','RColorBrewer', 'shiny',
-                   'shinyjs','shinythemes','rgdal',
-                   'sp', 'raster', 'mapview', 'automap',
-                   'dygraphs','xts', 'plotly', 'lubridate')
-
-if(length(new.pkgs <- setdiff(all.libraries, 
-                              rownames(installed.packages())))) install.packages(new.pkgs)
-
 library(leaflet)
 library(maps)
 library(mapproj)
