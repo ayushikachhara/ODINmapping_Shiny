@@ -21,7 +21,7 @@ sp.lines.df$w.date <- sp.lines.df$w.date #+43200
 #Get Ecan data
 load('./ecan_datatable.RData')
 
-data_ecan <- data_ecan.table
+#data_ecan <- data_ecan.table
 
 data_ecan$DateTime<- with_tz(data_ecan$DateTime, "UTC")
 data_ecan$DateTime <- data_ecan$DateTime #+43200

@@ -63,14 +63,33 @@ ui <-navbarPage(
              sidebarPanel(width = 6,id="sidebar", 
                           
                           uiOutput("slider"),
-                          
-                          radioButtons("speed", tags$b(h4("Animation Speed:")),
-                                       list("Slow", "Medium", "Fast"), 
-                                       selected = "Medium", inline = T, width = '300px'),
-                          
-                          sliderInput("step_size",tags$b(h4("Time Steps (in minutes:)")),
-                                      min = 10, max = 60, value = 1, step = 10, width = '300px'),
-                          
+                        
+                          fluidRow(
+                            column(5,
+                                   h4("Forward by:"),
+                                   actionButton("3hour_f", "3 hours", class="btn btn-primary btn-sm"),
+                                   actionButton("6hour_f", "6 hours", class="btn btn-primary btn-sm"),
+                                   actionButton("12hour_f", "12 hours", class="btn btn-primary btn-sm"),
+                                   actionButton("day_f", "1 day", class="btn btn-primary btn-sm")),
+                            column(5,
+                                   h4("Rewind by:"),
+                                   actionButton("3hour_b","3 hours", class="btn btn-primary btn-sm"),
+                                   actionButton("6hour_b","6 hours", class="btn btn-primary btn-sm"),
+                                   actionButton("12hour_b","12 hours", class="btn btn-primary btn-sm"),
+                                   actionButton("day_b", "1 day", class="btn btn-primary btn-sm"))
+                          ),
+                          HTML("<br><br>"),
+                          fluidRow(
+                            column(5,
+                                   radioButtons("speed", tags$b(h4("Animation Speed:")),
+                                                list("Slow", "Medium", "Fast"), 
+                                                selected = "Medium", inline = T, width = '300px')),
+                            column(5,
+                                   sliderInput("step_size",tags$b(h4("Time Steps (in minutes:)")),
+                                               min = 10, max = 60, value = 1, step = 10, width = '300px'))
+                          ),
+                          hr(),
+                          HTML("<br><br><br>"),
                           plotOutput("myPlot", height = "300px"),
                           tags$style(type="text/css", "#myPlot.recalculating { opacity: 1 !important;}")
              ),
@@ -80,18 +99,7 @@ ui <-navbarPage(
                        plotlyOutput("plotly", height = "300px"),
                        tags$style(type="text/css", "#plotly.recalculating { opacity: 1.0; }"),
                        hr(),
-                       h4("Forward by:"),
-                       actionButton("3hour_f", "3 hours", class="btn btn-primary btn-sm"),
-                       actionButton("6hour_f", "6 hours", class="btn btn-primary btn-sm"),
-                       actionButton("12hour_f", "12 hours", class="btn btn-primary btn-sm"),
-                       actionButton("day_f", "1 day", class="btn btn-primary btn-sm"),
-                       p(),
-                       h4("Rewind by:"),
-                       actionButton("3hour_b","3 hours", class="btn btn-primary btn-sm"),
-                       actionButton("6hour_b","6 hours", class="btn btn-primary btn-sm"),
-                       actionButton("12hour_b","12 hours", class="btn btn-primary btn-sm"),
-                       actionButton("day_b", "1 day", class="btn btn-primary btn-sm"),
-                       hr(),
+                       
                        h4(textOutput("selectedtime")),
                        tags$style(type="text/css", "#selectedtime.recalculating { opacity: 1.0; }"),
                        
