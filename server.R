@@ -7,7 +7,7 @@
 #    http://shiny.rstudio.com/
 #
 library(shiny)
-data_ecan <- as.data.frame(data_ecan)
+
 ##### define a function to generate slider at each radiobutton input. #######
 sliderType <- function(type, steps) {
   switch(type,
@@ -45,7 +45,7 @@ sliderType <- function(type, steps) {
                             value = minimum.slider,
                             step = 60*steps,
                             timezone = "UTC",
-                            animate = animationOptions(interval = 500,
+                            animate = animationOptions(interval = 500, loop = TRUE,
                                                        playButton = tags$img(height = 40,width = 45,
                                                                              src = "https://png.icons8.com/color/1600/circled-play",
                                                                              tags$p(tags$b("PLAY"))),
