@@ -108,6 +108,15 @@ server <- function(input,output,session) {
     val <- input$timeRange
     updateSliderInput(session, "timeRange",value=val)
   })
+  
+  
+  observe({
+    input$date
+    val <- paste(input$date, "00:00:00")
+    val <- as.POSIXct(val, format = "%Y-%m-%d %H:%M:%S")
+    updateSliderInput(session, "timeRange",value=val)
+  })
+  
 # #
 ### datetime slider definition.######
   output$slider <- renderUI({

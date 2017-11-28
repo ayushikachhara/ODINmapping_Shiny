@@ -62,6 +62,8 @@ ui <-navbarPage(
              
              sidebarPanel(width = 6,id="sidebar", 
                           
+                          dateInput("date","Start Date:", value = as.Date(minimum.slider),
+                                    min = minimum.slider, max = maximum.slider),
                           uiOutput("slider"),
                         
                           fluidRow(
