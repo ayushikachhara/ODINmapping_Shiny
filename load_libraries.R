@@ -9,7 +9,7 @@ library(shinythemes)
 library(rgdal)
 library(sp)
 library(raster)
-library(mapview)
+#library(mapview)
 library(automap)
 library(dygraphs)  ## new addition on 09/05/2017
 library(xts)
