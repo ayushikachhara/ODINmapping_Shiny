@@ -5,3 +5,5 @@
 Data/*
 *.RData
 niwa-logo.jpg
+packrat/lib*/
+packrat/src/
