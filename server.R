@@ -165,8 +165,6 @@ server <- function(input, output, session){
   # })
   ### barplot ######
   output$myPlot <- renderPlot({
-    invalidateLater(5000,session)
-    
     barplot(subsetData()$PM2_5,
             main = "ODIN Readings",
             xlab = "ODIN ID",
@@ -181,9 +179,6 @@ server <- function(input, output, session){
   
   ###### plotly output ####
   output$plotly <-renderPlotly({
-    invalidateLater(5000,session)
-    
-    
     ##secondary y-axis definition.
     second_axis <- list(
       tickfont = list(color = "#636363"),
@@ -218,8 +213,7 @@ server <- function(input, output, session){
   
   
   ## ODIN dynamic map.####
-  observe({
-    
+  observeEvent(eventExpr = input$timeRange, ignoreNULL = T, handlerExpr = {
     leafletProxy('myMap', deferUntilFlush = FALSE) %>%
       addProviderTiles(providers$Stamen.Toner, group = "Toner",
                        options = providerTileOptions(opacity = 1)) %>%
@@ -227,7 +221,9 @@ server <- function(input, output, session){
                options = tileOptions(opacity = 1)) %>%
       addProviderTiles(providers$Stamen.TonerLite, group = "Toner Lite",
                        options = providerTileOptions(opacity = 1)) %>%
-      clearGroup('Wind') %>%
+      clearImages() %>%
+      clearMarkers() %>%
+      clearShapes() %>%
       addRasterImage(subsetRaster(),
                      group = "PM2.5(interpolated)",
                      colors = binpal,
